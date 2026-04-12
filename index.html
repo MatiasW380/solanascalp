@@ -55,7 +55,6 @@ html, body { width: 100%; min-height: 100vh; background: var(--bg); color: var(-
 .cooldown-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--muted); }
 .cooldown-text { color: var(--muted2); }
 @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
-@keyframes blink-red { 0%,100%{opacity:1} 50%{opacity:.2} }
 @keyframes pulse-red { 0%{background:rgba(255,61,87,0.15)} 50%{background:rgba(255,61,87,0.4)} 100%{background:rgba(255,61,87,0.15)} }
 .h-update { font-size: 7px; color: var(--muted); }
 .desktop-layout { display: none; grid-template-columns: 280px 1fr 280px; gap: 0; flex: 1; overflow: hidden; }
@@ -174,6 +173,7 @@ td { padding: 4px 5px; }
     </div>
   </header>
 
+  <!-- DESKTOP LAYOUT -->
   <div class="desktop-layout">
     <div class="col-left">
       <div class="sec"><div class="sec-label">POSICIÓN ACTIVA</div>
@@ -230,9 +230,16 @@ td { padding: 4px 5px; }
         <div class="signal-box" id="desk-signal-box">Calculando señal...</div>
       </div>
       <div class="sec trades-sec"><div class="trades-header">ÚLTIMAS OPERACIONES<button class="csv-btn" onclick="downloadCSV()">↓ CSV</button></div>
-        <div class="trades-wrap"><table><thead><tr><th>LADO</th><th>ENTRADA</th><th>DUR</th><th>PnL</th><th>RSI</th><th>RES</th></tr></thead>
-        <tbody id="desk-trades-tbody"><tr><td colspan="6">Sin operaciones</td></tr></tbody>
-    }</div>
+        <div class="trades-wrap">
+          <table>
+            <thead>
+              <tr><th>LADO</th><th>ENTRADA</th><th>DUR</th><th>PnL</th><th>RSI</th><th>RES</th></tr>
+            </thead>
+            <tbody id="desk-trades-tbody">
+              <tr><td colspan="6">Sin operaciones</td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
       <div class="sec"><div class="sec-label">HISTORIAL DIARIO</div>
         <div id="desk-snap-rows"><div class="snap-row">Sin datos</div></div>
@@ -240,6 +247,7 @@ td { padding: 4px 5px; }
     </div>
   </div>
 
+  <!-- MOBILE LAYOUT -->
   <div class="mobile-layout">
     <div class="mobile-card"><div class="mobile-card-title">POSICIÓN ACTIVA</div>
       <div class="mobile-pos-side flat" id="mobile-pos-side">FLAT</div>
@@ -274,15 +282,20 @@ td { padding: 4px 5px; }
       </div>
     </div>
     <div class="mobile-card"><div class="mobile-card-title">ÚLTIMAS OPERACIONES</div>
-      <div class="mobile-trades"><table><thead><tr><th>LADO</th><th>ENTRADA</th><th>PnL</th><th>RES</th></tr></thead>
-      <tbody id="mobile-trades-body"><tr><td colspan="4">Sin operaciones</td></tr></tbody>
-    }</div>
+      <div class="mobile-trades">
+        <table>
+          <thead><tr><th>LADO</th><th>ENTRADA</th><th>PnL</th><th>RES</th></tr></thead>
+          <tbody id="mobile-trades-body"><tr><td colspan="4">Sin operaciones</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="mobile-card"><div class="mobile-card-title">HISTORIAL DIARIO</div>
+      <div id="mobile-snapshots"><div class="snap-row">Sin datos</div></div>
     </div>
   </div>
 </div>
 
 <script>
-// CAMBIADO: API_BASE apunta a los endpoints de SOLANA
 const API_BASE = "https://matiasbarone.pythonanywhere.com/api/sol";
 const REFRESH = 60000;
 let chartMode = "capital", equityChart = null;
@@ -290,11 +303,13 @@ let allTrades = [], allSnapshots = [];
 
 function updateCooldown(remainingSec) {
   const remaining = Math.max(0, Math.floor(remainingSec / 60));
-  const cdTexts = ["cooldown-text", "mobile-cool"];
+  const cdTexts = ["cooldown-text", "mobile-cool", "desk-pos-cool"];
   cdTexts.forEach(id => {
     const el = document.getElementById(id);
-    if (el) el.textContent = remaining > 0 ? `CD: ${remaining} min` : "CD: --";
+    if (el) el.textContent = remaining > 0 ? `${remaining} min` : "--";
   });
+  const cdBadgeText = document.getElementById("cooldown-text");
+  if (cdBadgeText) cdBadgeText.textContent = remaining > 0 ? `CD: ${remaining} min` : "CD: --";
   const cdDot = document.querySelector(".cooldown-dot");
   if (remaining > 0) {
     if (cdDot) cdDot.style.background = "#ffab00";
@@ -427,8 +442,9 @@ async function fetchAll() {
     document.getElementById("mobile-wr").textContent = `${wr.toFixed(1)}%`;
     document.getElementById("mobile-dd").textContent = `${dd.toFixed(1)}%`;
     document.getElementById("mobile-wl").innerHTML = `<span class="green">${wins}</span>/<span class="red">${losses}</span>`;
-    document.getElementById("mobile-pnl").textContent = `${state.gross_pnl>=0?"+":""}$${Math.abs(state.gross_pnl||0).toFixed(0)}`;
-    document.getElementById("mobile-pnl").className = `mobile-met-value ${(state.gross_pnl||0)>=0?"green":"red"}`;
+    const grossPnl = state.gross_pnl || 0;
+    document.getElementById("mobile-pnl").textContent = `${grossPnl>=0?"+":""}$${Math.abs(grossPnl).toFixed(0)}`;
+    document.getElementById("mobile-pnl").className = `mobile-met-value ${grossPnl>=0?"green":"red"}`;
 
     // MÉTRICAS Desktop
     document.getElementById("desk-m-return").textContent = `${ret>=0?"+":""}${ret.toFixed(2)}%`;
@@ -437,8 +453,8 @@ async function fetchAll() {
     document.getElementById("desk-m-wr").className = `met-val ${wr>=55?"green":wr>=45?"yellow":"red"}`;
     document.getElementById("desk-m-cap").textContent = `$${(cap/1000).toFixed(1)}k`;
     document.getElementById("desk-m-cap").className = `met-val ${cap>=10000?"green":"red"}`;
-    document.getElementById("desk-m-pnl").textContent = `${state.gross_pnl>=0?"+":""}$${Math.abs(state.gross_pnl||0).toFixed(0)}`;
-    document.getElementById("desk-m-pnl").className = `met-val ${(state.gross_pnl||0)>=0?"green":"red"}`;
+    document.getElementById("desk-m-pnl").textContent = `${grossPnl>=0?"+":""}$${Math.abs(grossPnl).toFixed(0)}`;
+    document.getElementById("desk-m-pnl").className = `met-val ${grossPnl>=0?"green":"red"}`;
     document.getElementById("desk-m-dd").textContent = `${dd.toFixed(1)}%`;
     document.getElementById("desk-m-dd").className = `met-val ${dd<10?"green":dd<20?"yellow":"red"}`;
     document.getElementById("desk-m-wl").innerHTML = `<span class="green">${wins}</span>/<span class="red">${losses}</span>`;
@@ -485,40 +501,60 @@ async function fetchAll() {
       ["mobile-pos-entry","mobile-pos-tp","mobile-pos-sl","mobile-pos-dur","mobile-pos-rsi"].forEach(id => document.getElementById(id).textContent = "—");
       document.getElementById("mobile-pos-pnl").textContent = "—";
     }
-    document.getElementById("desk-pos-cool").textContent = remainingSec>0 ? `${Math.floor(remainingSec/60)} min` : "—";
 
-    // TABLA DE TRADES
+    // TABLA DE TRADES Desktop
     const deskTbody = document.getElementById("desk-trades-tbody");
-    if (!allTrades || allTrades.length === 0) deskTbody.innerHTML = `<tr><td colspan="6">Sin operaciones</td></tr>`;
-    else deskTbody.innerHTML = [...allTrades].reverse().slice(0,20).map(t => `<tr>
-          <td><span class="pill pill-${t.side.toLowerCase()}">${t.side}</span></td>
-          <td>$${(t.entry_price||0).toLocaleString()}</td>
-          <td>${t.duration_min||0}m</td>
-          <td class="${t.pnl_pct>=0?"green":"red"}">${t.pnl_pct>=0?"+":""}${(t.pnl_pct||0).toFixed(1)}%</td>
-          <td>${t.entry_rsi?.toFixed(1)||"—"}</td>
-          <td><span class="pill pill-${(t.reason||"").toLowerCase()}">${t.reason||"—"}</span></td>
-         `).join("");
-    
-    const mobileTbody = document.getElementById("mobile-trades-body");
-    if (!allTrades || allTrades.length === 0) mobileTbody.innerHTML = `<tr><td colspan="4">Sin operaciones</td></tr>`;
-    else mobileTbody.innerHTML = [...allTrades].reverse().slice(0,10).map(t => `<tr>
-          <td><span class="pill pill-${t.side.toLowerCase()}">${t.side}</span></td>
-          <td>$${(t.entry_price||0).toLocaleString()}</td>
-          <td class="${t.pnl_pct>=0?"green":"red"}">${t.pnl_pct>=0?"+":""}${(t.pnl_pct||0).toFixed(1)}%</td>
-          <td><span class="pill pill-${(t.reason||"").toLowerCase()}">${t.reason||"—"}</span></td>
-         `).join("");
-
-    // SNAPSHOTS
-    const snapDiv = document.getElementById("desk-snap-rows");
-    if (!allSnapshots || allSnapshots.length === 0) {
-      snapDiv.innerHTML = '<div class="snap-row"><span class="snap-key">Sin datos</span></div>';
+    if (!allTrades || allTrades.length === 0) {
+      deskTbody.innerHTML = `<tr><td colspan="6">Sin operaciones</td></tr>`;
     } else {
-      snapDiv.innerHTML = [...allSnapshots].reverse().slice(0,5).map(s => `
-        <div class="snap-row">
-          <span class="snap-key">${s.date} · ${s.total_trades||0}t · WR ${(s.win_rate||0).toFixed(0)}%</span>
-          <span class="snap-val ${s.return_total>=0?"green":"red"}">${s.return_total>=0?"+":""}${(s.return_total||0).toFixed(2)}%</span>
-        </div>
+      deskTbody.innerHTML = [...allTrades].reverse().slice(0,20).map(t => `<tr>
+        <td><span class="pill pill-${t.side.toLowerCase()}">${t.side}</span></td>
+        <td>$${(t.entry_price||0).toLocaleString()}</td>
+        <td>${t.duration_min||0}m</td>
+        <td class="${t.pnl_pct>=0?"green":"red"}">${t.pnl_pct>=0?"+":""}${(t.pnl_pct||0).toFixed(1)}%</td>
+        <td>${t.entry_rsi?.toFixed(1)||"—"}</td>
+        <td><span class="pill pill-${(t.reason||"").toLowerCase()}">${t.reason||"—"}</span></td>
       `).join("");
+    }
+    
+    // TABLA DE TRADES Mobile
+    const mobileTbody = document.getElementById("mobile-trades-body");
+    if (!allTrades || allTrades.length === 0) {
+      mobileTbody.innerHTML = `<tr><td colspan="4">Sin operaciones</td></tr>`;
+    } else {
+      mobileTbody.innerHTML = [...allTrades].reverse().slice(0,10).map(t => `<tr>
+        <td><span class="pill pill-${t.side.toLowerCase()}">${t.side}</span></td>
+        <td>$${(t.entry_price||0).toLocaleString()}</td>
+        <td class="${t.pnl_pct>=0?"green":"red"}">${t.pnl_pct>=0?"+":""}${(t.pnl_pct||0).toFixed(1)}%</td>
+        <td><span class="pill pill-${(t.reason||"").toLowerCase()}">${t.reason||"—"}</span></td>
+      `).join("");
+    }
+
+    // SNAPSHOTS Desktop y Mobile
+    const snapDivDesktop = document.getElementById("desk-snap-rows");
+    const snapDivMobile = document.getElementById("mobile-snapshots");
+    
+    if (!allSnapshots || allSnapshots.length === 0) {
+      if (snapDivDesktop) snapDivDesktop.innerHTML = '<div class="snap-row"><span class="snap-key">Sin datos</span></div>';
+      if (snapDivMobile) snapDivMobile.innerHTML = '<div class="snap-row"><span class="snap-key">Sin datos</span></div>';
+    } else {
+      const snapshotsReversed = [...allSnapshots].reverse().slice(0,10);
+      if (snapDivDesktop) {
+        snapDivDesktop.innerHTML = snapshotsReversed.map(s => `
+          <div class="snap-row">
+            <span class="snap-key">${s.date} · ${s.total_trades||0}t · WR ${(s.win_rate||0).toFixed(0)}%</span>
+            <span class="snap-val ${s.return_total>=0?"green":"red"}">${s.return_total>=0?"+":""}${(s.return_total||0).toFixed(2)}%</span>
+          </div>
+        `).join("");
+      }
+      if (snapDivMobile) {
+        snapDivMobile.innerHTML = snapshotsReversed.map(s => `
+          <div class="snap-row">
+            <span class="snap-key">${s.date} · ${s.total_trades||0}t</span>
+            <span class="snap-val ${s.return_total>=0?"green":"red"}">${s.return_total>=0?"+":""}${(s.return_total||0).toFixed(2)}%</span>
+          </div>
+        `).join("");
+      }
     }
 
     // EQUITY CHART
