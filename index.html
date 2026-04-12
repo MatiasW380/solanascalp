@@ -55,9 +55,10 @@ html, body { width: 100%; min-height: 100vh; background: var(--bg); color: var(-
 .cooldown-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--muted); }
 .cooldown-text { color: var(--muted2); }
 @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+@keyframes blink-red { 0%,100%{opacity:1} 50%{opacity:.2} }
 @keyframes pulse-red { 0%{background:rgba(255,61,87,0.15)} 50%{background:rgba(255,61,87,0.4)} 100%{background:rgba(255,61,87,0.15)} }
 .h-update { font-size: 7px; color: var(--muted); }
-.desktop-layout { display: none; grid-template-columns: 280px 1fr 320px; gap: 0; flex: 1; overflow: hidden; }
+.desktop-layout { display: none; grid-template-columns: 280px 1fr 280px; gap: 0; flex: 1; overflow: hidden; }
 .mobile-layout { display: flex; flex-direction: column; gap: 12px; padding: 12px; overflow-y: auto; flex: 1; }
 .mobile-card { background: var(--bg2); border: 1px solid var(--bd); border-radius: 16px; padding: 14px; }
 .mobile-card-title { font-size: 9px; letter-spacing: 0.14em; color: var(--muted2); font-weight: 700; margin-bottom: 10px; text-transform: uppercase; }
@@ -80,14 +81,10 @@ html, body { width: 100%; min-height: 100vh; background: var(--bg); color: var(-
 .mobile-met { background: var(--bg3); border: 1px solid var(--bd); border-radius: 10px; padding: 8px 10px; }
 .mobile-met-label { font-size: 7px; color: var(--muted2); letter-spacing: 0.08em; margin-bottom: 2px; }
 .mobile-met-value { font-size: 16px; font-weight: 700; }
-.mobile-trades { overflow-x: auto; margin-top: 10px; }
+.mobile-trades { overflow-x: auto; }
 .mobile-trades table { width: 100%; border-collapse: collapse; font-size: 9px; }
 .mobile-trades th, .mobile-trades td { padding: 8px 5px; text-align: left; border-bottom: 1px solid var(--bd); }
 .mobile-trades th { color: var(--muted2); font-weight: 700; letter-spacing: 0.08em; }
-.mobile-snapshots { margin-top: 10px; }
-.snapshot-item { background: var(--bg3); border: 1px solid var(--bd); border-radius: 8px; padding: 8px 10px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
-.snapshot-date { font-size: 9px; font-weight: 700; color: var(--muted2); }
-.snapshot-return { font-size: 11px; font-weight: 700; }
 .col-left, .col-right { display: flex; flex-direction: column; overflow: hidden; border-right: 1px solid var(--bd); }
 .col-right { border-right: none; border-left: 1px solid var(--bd); }
 .col-center { display: flex; flex-direction: column; overflow: hidden; }
@@ -130,12 +127,11 @@ html, body { width: 100%; min-height: 100vh; background: var(--bg); color: var(-
 .signal-box { padding: 6px 8px; border-radius: 4px; border: 1px solid var(--bd); font-size: 9px; line-height: 1.5; background: var(--bg3); color: var(--muted2); }
 .signal-box.ready { border-color: var(--green); color: var(--green); background: rgba(0,230,118,.05); }
 .signal-box.almost { border-color: var(--yellow); color: var(--yellow); background: rgba(255,171,0,.05); }
-.trades-sec { flex: 1; overflow: hidden; display: flex; flex-direction: column; margin-top: 8px; }
+.trades-sec { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
 .trades-header { display: flex; justify-content: space-between; align-items: center; font-size: 8px; letter-spacing: 0.14em; color: var(--muted2); font-weight: 700; margin-bottom: 5px; }
 .csv-btn { font-size: 7px; padding: 2px 7px; border-radius: 8px; border: 1px solid var(--bd); background: transparent; color: var(--muted2); cursor: pointer; }
 .csv-btn:hover { border-color: var(--green); color: var(--green); }
-.trades-wrap { overflow-y: auto; flex: 1; scrollbar-width: thin; max-height: 300px; }
-.snapshots-wrap { overflow-y: auto; max-height: 200px; margin-top: 8px; }
+.trades-wrap { overflow-y: auto; flex: 1; scrollbar-width: thin; }
 table { width: 100%; border-collapse: collapse; font-size: 10px; }
 thead th { padding: 3px 5px; text-align: left; color: var(--muted2); font-size: 7px; letter-spacing: 0.08em; border-bottom: 1px solid var(--bd); position: sticky; top: 0; background: var(--bg2); }
 tbody tr { border-bottom: 1px solid rgba(30,37,48,.4); }
@@ -143,7 +139,7 @@ td { padding: 4px 5px; }
 .pill { display: inline-block; padding: 1px 5px; border-radius: 8px; font-size: 7px; font-weight: 700; letter-spacing: 0.05em; }
 .pill-tp, .pill-long { background: rgba(0,230,118,.15); color: var(--green); }
 .pill-sl, .pill-short { background: rgba(255,61,87,.15); color: var(--red); }
-.snap-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--bd); font-size: 10px; }
+.snap-row { display: flex; justify-content: space-between; padding: 3px 0; border-bottom: 1px solid var(--bd); font-size: 10px; }
 .snap-row:last-child { border-bottom: none; }
 .snap-key { color: var(--muted2); }
 .snap-val { font-weight: 700; }
@@ -178,7 +174,6 @@ td { padding: 4px 5px; }
     </div>
   </header>
 
-  <!-- DESKTOP LAYOUT -->
   <div class="desktop-layout">
     <div class="col-left">
       <div class="sec"><div class="sec-label">POSICIÓN ACTIVA</div>
@@ -234,22 +229,17 @@ td { padding: 4px 5px; }
           <div class="bar-track"><div class="bar-fill" id="desk-adx-bar" style="width:0%"></div><div class="bar-mark" style="left:25%"><span class="bar-mark-lbl">25↑</span></div></div></div>
         <div class="signal-box" id="desk-signal-box">Calculando señal...</div>
       </div>
-      
-      <!-- SOLO UNA TABLA DE TRADES (Desktop) -->
       <div class="sec trades-sec"><div class="trades-header">ÚLTIMAS OPERACIONES<button class="csv-btn" onclick="downloadCSV()">↓ CSV</button></div>
-        <div class="trades-wrap"></table><thead><tr><th>LADO</th><th>ENTRADA</th><th>DUR</th><th>PnL</th><th>RSI</th><th>RES</th></tr></thead>
+        <div class="trades-wrap"><table><thead><tr><th>LADO</th><th>ENTRADA</th><th>DUR</th><th>PnL</th><th>RSI</th><th>RES</th></tr></thead>
         <tbody id="desk-trades-tbody"><tr><td colspan="6">Sin operaciones</td></tr></tbody>
     }</div>
       </div>
-      
-      <!-- HISTORIAL DIARIO (Desktop) -->
       <div class="sec"><div class="sec-label">HISTORIAL DIARIO</div>
-        <div class="snapshots-wrap" id="desk-snap-rows"></div>
+        <div id="desk-snap-rows"><div class="snap-row">Sin datos</div></div>
       </div>
     </div>
   </div>
 
-  <!-- MOBILE LAYOUT -->
   <div class="mobile-layout">
     <div class="mobile-card"><div class="mobile-card-title">POSICIÓN ACTIVA</div>
       <div class="mobile-pos-side flat" id="mobile-pos-side">FLAT</div>
@@ -286,15 +276,13 @@ td { padding: 4px 5px; }
     <div class="mobile-card"><div class="mobile-card-title">ÚLTIMAS OPERACIONES</div>
       <div class="mobile-trades"><table><thead><tr><th>LADO</th><th>ENTRADA</th><th>PnL</th><th>RES</th></tr></thead>
       <tbody id="mobile-trades-body"><tr><td colspan="4">Sin operaciones</td></tr></tbody>
-    </div>
-    </div>
-    <div class="mobile-card"><div class="mobile-card-title">HISTORIAL DIARIO</div>
-      <div class="mobile-snapshots" id="mobile-snapshots"></div>
+    }</div>
     </div>
   </div>
 </div>
 
 <script>
+// CAMBIADO: API_BASE apunta a los endpoints de SOLANA
 const API_BASE = "https://matiasbarone.pythonanywhere.com/api/sol";
 const REFRESH = 60000;
 let chartMode = "capital", equityChart = null;
@@ -302,10 +290,10 @@ let allTrades = [], allSnapshots = [];
 
 function updateCooldown(remainingSec) {
   const remaining = Math.max(0, Math.floor(remainingSec / 60));
-  const cdTexts = ["cooldown-text", "mobile-cool", "desk-pos-cool"];
+  const cdTexts = ["cooldown-text", "mobile-cool"];
   cdTexts.forEach(id => {
     const el = document.getElementById(id);
-    if (el) el.textContent = remaining > 0 ? `${remaining} min` : "--";
+    if (el) el.textContent = remaining > 0 ? `CD: ${remaining} min` : "CD: --";
   });
   const cdDot = document.querySelector(".cooldown-dot");
   if (remaining > 0) {
@@ -439,9 +427,8 @@ async function fetchAll() {
     document.getElementById("mobile-wr").textContent = `${wr.toFixed(1)}%`;
     document.getElementById("mobile-dd").textContent = `${dd.toFixed(1)}%`;
     document.getElementById("mobile-wl").innerHTML = `<span class="green">${wins}</span>/<span class="red">${losses}</span>`;
-    const grossPnl = state.gross_pnl || 0;
-    document.getElementById("mobile-pnl").textContent = `${grossPnl>=0?"+":""}$${Math.abs(grossPnl).toFixed(0)}`;
-    document.getElementById("mobile-pnl").className = `mobile-met-value ${grossPnl>=0?"green":"red"}`;
+    document.getElementById("mobile-pnl").textContent = `${state.gross_pnl>=0?"+":""}$${Math.abs(state.gross_pnl||0).toFixed(0)}`;
+    document.getElementById("mobile-pnl").className = `mobile-met-value ${(state.gross_pnl||0)>=0?"green":"red"}`;
 
     // MÉTRICAS Desktop
     document.getElementById("desk-m-return").textContent = `${ret>=0?"+":""}${ret.toFixed(2)}%`;
@@ -450,8 +437,8 @@ async function fetchAll() {
     document.getElementById("desk-m-wr").className = `met-val ${wr>=55?"green":wr>=45?"yellow":"red"}`;
     document.getElementById("desk-m-cap").textContent = `$${(cap/1000).toFixed(1)}k`;
     document.getElementById("desk-m-cap").className = `met-val ${cap>=10000?"green":"red"}`;
-    document.getElementById("desk-m-pnl").textContent = `${grossPnl>=0?"+":""}$${Math.abs(grossPnl).toFixed(0)}`;
-    document.getElementById("desk-m-pnl").className = `met-val ${grossPnl>=0?"green":"red"}`;
+    document.getElementById("desk-m-pnl").textContent = `${state.gross_pnl>=0?"+":""}$${Math.abs(state.gross_pnl||0).toFixed(0)}`;
+    document.getElementById("desk-m-pnl").className = `met-val ${(state.gross_pnl||0)>=0?"green":"red"}`;
     document.getElementById("desk-m-dd").textContent = `${dd.toFixed(1)}%`;
     document.getElementById("desk-m-dd").className = `met-val ${dd<10?"green":dd<20?"yellow":"red"}`;
     document.getElementById("desk-m-wl").innerHTML = `<span class="green">${wins}</span>/<span class="red">${losses}</span>`;
@@ -498,65 +485,40 @@ async function fetchAll() {
       ["mobile-pos-entry","mobile-pos-tp","mobile-pos-sl","mobile-pos-dur","mobile-pos-rsi"].forEach(id => document.getElementById(id).textContent = "—");
       document.getElementById("mobile-pos-pnl").textContent = "—";
     }
+    document.getElementById("desk-pos-cool").textContent = remainingSec>0 ? `${Math.floor(remainingSec/60)} min` : "—";
 
-    // TABLA DE TRADES (Desktop)
+    // TABLA DE TRADES
     const deskTbody = document.getElementById("desk-trades-tbody");
-    if (!allTrades || allTrades.length === 0) {
-      deskTbody.innerHTML = `<tr><td colspan="6">Sin operaciones</td></tr>`;
-    } else {
-      deskTbody.innerHTML = [...allTrades].reverse().slice(0,20).map(t => `<tr>
-        <td><span class="pill pill-${t.side.toLowerCase()}">${t.side}</span></td>
-        <td>$${(t.entry_price||0).toLocaleString()}</td>
-        <td>${t.duration_min||0}m</td>
-        <td class="${t.pnl_pct>=0?"green":"red"}">${t.pnl_pct>=0?"+":""}${(t.pnl_pct||0).toFixed(1)}%</td>
-        <td>${t.entry_rsi?.toFixed(1)||"—"}</td>
-        <td><span class="pill pill-${(t.reason||"").toLowerCase()}">${t.reason||"—"}</span></td>
-      `).join("");
-    }
+    if (!allTrades || allTrades.length === 0) deskTbody.innerHTML = `<tr><td colspan="6">Sin operaciones</td></tr>`;
+    else deskTbody.innerHTML = [...allTrades].reverse().slice(0,20).map(t => `<tr>
+          <td><span class="pill pill-${t.side.toLowerCase()}">${t.side}</span></td>
+          <td>$${(t.entry_price||0).toLocaleString()}</td>
+          <td>${t.duration_min||0}m</td>
+          <td class="${t.pnl_pct>=0?"green":"red"}">${t.pnl_pct>=0?"+":""}${(t.pnl_pct||0).toFixed(1)}%</td>
+          <td>${t.entry_rsi?.toFixed(1)||"—"}</td>
+          <td><span class="pill pill-${(t.reason||"").toLowerCase()}">${t.reason||"—"}</span></td>
+         `).join("");
     
-    // TABLA DE TRADES (Mobile)
     const mobileTbody = document.getElementById("mobile-trades-body");
-    if (!allTrades || allTrades.length === 0) {
-      mobileTbody.innerHTML = `<tr><td colspan="4">Sin operaciones</td></tr>`;
-    } else {
-      mobileTbody.innerHTML = [...allTrades].reverse().slice(0,10).map(t => `<tr>
-        <td><span class="pill pill-${t.side.toLowerCase()}">${t.side}</span></td>
-        <td>$${(t.entry_price||0).toLocaleString()}</td>
-        <td class="${t.pnl_pct>=0?"green":"red"}">${t.pnl_pct>=0?"+":""}${(t.pnl_pct||0).toFixed(1)}%</td>
-        <td><span class="pill pill-${(t.reason||"").toLowerCase()}">${t.reason||"—"}</span></td>
-      `).join("");
-    }
+    if (!allTrades || allTrades.length === 0) mobileTbody.innerHTML = `<tr><td colspan="4">Sin operaciones</td></tr>`;
+    else mobileTbody.innerHTML = [...allTrades].reverse().slice(0,10).map(t => `<tr>
+          <td><span class="pill pill-${t.side.toLowerCase()}">${t.side}</span></td>
+          <td>$${(t.entry_price||0).toLocaleString()}</td>
+          <td class="${t.pnl_pct>=0?"green":"red"}">${t.pnl_pct>=0?"+":""}${(t.pnl_pct||0).toFixed(1)}%</td>
+          <td><span class="pill pill-${(t.reason||"").toLowerCase()}">${t.reason||"—"}</span></td>
+         `).join("");
 
-    // HISTORIAL DIARIO (Desktop y Mobile)
-    const snapDivDesktop = document.getElementById("desk-snap-rows");
-    const snapDivMobile = document.getElementById("mobile-snapshots");
-    
+    // SNAPSHOTS
+    const snapDiv = document.getElementById("desk-snap-rows");
     if (!allSnapshots || allSnapshots.length === 0) {
-      const emptyMsg = '<div class="snap-row"><span class="snap-key">Sin datos</span></div>';
-      if (snapDivDesktop) snapDivDesktop.innerHTML = emptyMsg;
-      if (snapDivMobile) snapDivMobile.innerHTML = '<div class="snapshot-item"><span class="snapshot-date">Sin datos</span></div>';
+      snapDiv.innerHTML = '<div class="snap-row"><span class="snap-key">Sin datos</span></div>';
     } else {
-      const snapshotsReversed = [...allSnapshots].reverse().slice(0,10);
-      
-      // Desktop
-      if (snapDivDesktop) {
-        snapDivDesktop.innerHTML = snapshotsReversed.map(s => `
-          <div class="snap-row">
-            <span class="snap-key">${s.date} · ${s.total_trades||0}t · WR ${(s.win_rate||0).toFixed(0)}%</span>
-            <span class="snap-val ${s.return_total>=0?"green":"red"}">${s.return_total>=0?"+":""}${(s.return_total||0).toFixed(2)}%</span>
-          </div>
-        `).join("");
-      }
-      
-      // Mobile
-      if (snapDivMobile) {
-        snapDivMobile.innerHTML = snapshotsReversed.map(s => `
-          <div class="snapshot-item">
-            <span class="snapshot-date">${s.date}</span>
-            <span class="snapshot-return ${s.return_total>=0?"green":"red"}">${s.return_total>=0?"+":""}${(s.return_total||0).toFixed(2)}%</span>
-          </div>
-        `).join("");
-      }
+      snapDiv.innerHTML = [...allSnapshots].reverse().slice(0,5).map(s => `
+        <div class="snap-row">
+          <span class="snap-key">${s.date} · ${s.total_trades||0}t · WR ${(s.win_rate||0).toFixed(0)}%</span>
+          <span class="snap-val ${s.return_total>=0?"green":"red"}">${s.return_total>=0?"+":""}${(s.return_total||0).toFixed(2)}%</span>
+        </div>
+      `).join("");
     }
 
     // EQUITY CHART
