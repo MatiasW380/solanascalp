@@ -316,14 +316,26 @@ function updateCooldown(remainingSec) {
 
 async function fetchAll() {
   try {
-    const [stR, trR, snR] = await Promise.all([
+    const [stR, trR, snR, statusR] = await Promise.all([
       fetch(`${API_BASE}/state`),
       fetch(`${API_BASE}/trades`),
-      fetch(`${API_BASE}/snapshots`)
+      fetch(`${API_BASE}/snapshots`),
+      fetch(`${API_BASE}/status`)
     ]);
+    
     const state = await stR.json();
     allTrades = await trR.json();
     allSnapshots = await snR.json();
+    const status = await statusR.json();
+    
+    // Actualizar estado del bot
+    if (status.alive) {
+      document.getElementById("status-pill").className = "status-pill alive";
+      document.getElementById("status-text").textContent = "ACTIVO";
+    } else {
+      document.getElementById("status-pill").className = "status-pill dead";
+      document.getElementById("status-text").textContent = "DESCONECTADO";
+    }
 
     const cap = state.capital || 10000;
     const ret = (cap - 10000) / 10000 * 100;
@@ -338,11 +350,10 @@ async function fetchAll() {
     const remainingSec = coolUntil - Date.now()/1000;
     const inCooldown = updateCooldown(remainingSec);
     
-    // Determinar señal potencial basada en EMAs (si hay suficientes datos)
+    // Determinar señal potencial basada en EMAs
     let signalReady = false;
     let signalDirection = null;
     if (currentEma3 && currentEma10 && allTrades.length > 0) {
-      // Buscar el último trade para comparar tendencia (simplificado)
       const lastTrade = allTrades[allTrades.length - 1];
       if (lastTrade && lastTrade.entry_ema_fast && lastTrade.entry_ema_slow) {
         const wasAbove = lastTrade.entry_ema_fast > lastTrade.entry_ema_slow;
@@ -440,6 +451,9 @@ async function fetchAll() {
     document.getElementById("desk-p-streak").textContent = state.max_consecutive_losses || 0;
 
     // POSICIÓN
+    const CONFIG_TP = 5.0;
+    const CONFIG_SL = 1.5;
+    
     if (state.position) {
       const side = state.position;
       document.getElementById("desk-pos-side").textContent = side;
@@ -502,7 +516,7 @@ async function fetchAll() {
     // TABLA DE TRADES Mobile
     const mobileTbody = document.getElementById("mobile-trades-body");
     if (!allTrades || allTrades.length === 0) {
-      mobileTbody.innerHTML = `<tr><td colspan="4">Sin operaciones</td></tr>`;
+      mobileTbody.innerHTML = `<td><td colspan="4">Sin operaciones</td></tr>`;
     } else {
       mobileTbody.innerHTML = [...allTrades].reverse().slice(0,10).map(t => `<tr>
         <td><span class="pill pill-${t.side.toLowerCase()}">${t.side}</span></td>
@@ -554,18 +568,13 @@ async function fetchAll() {
     }
     
     document.getElementById("h-update").textContent = new Date().toLocaleTimeString("es-AR");
-    document.getElementById("status-pill").className = "status-pill alive";
-    document.getElementById("status-text").textContent = "ACTIVO";
+    
   } catch(e) {
-    console.error(e);
+    console.error("Error fetching data:", e);
     document.getElementById("status-pill").className = "status-pill dead";
     document.getElementById("status-text").textContent = "DESCONECTADO";
   }
 }
-
-// Configuración para TP/SL (debe coincidir con el bot)
-const CONFIG_TP = 5.0;
-const CONFIG_SL = 1.5;
 
 function setChartMode(mode) {
   chartMode = mode;
