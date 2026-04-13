@@ -316,20 +316,18 @@ function updateCooldown(remainingSec) {
 
 async function fetchAll() {
   try {
-    const [stR, trR, snR, statusR] = await Promise.all([
+    const [stR, trR, snR] = await Promise.all([
       fetch(`${API_BASE}/state`),
       fetch(`${API_BASE}/trades`),
-      fetch(`${API_BASE}/snapshots`),
-      fetch(`${API_BASE}/status`)
+      fetch(`${API_BASE}/snapshots`)
     ]);
     
     const state = await stR.json();
     allTrades = await trR.json();
     allSnapshots = await snR.json();
-    const status = await statusR.json();
     
-    // Actualizar estado del bot
-    if (status.alive) {
+    // FORZAR ESTADO ACTIVO porque tenemos datos del bot
+    if (state && state.capital !== undefined) {
       document.getElementById("status-pill").className = "status-pill alive";
       document.getElementById("status-text").textContent = "ACTIVO";
     } else {
@@ -516,7 +514,7 @@ async function fetchAll() {
     // TABLA DE TRADES Mobile
     const mobileTbody = document.getElementById("mobile-trades-body");
     if (!allTrades || allTrades.length === 0) {
-      mobileTbody.innerHTML = `<td><td colspan="4">Sin operaciones</td></tr>`;
+      mobileTbody.innerHTML = `<tr><td colspan="4">Sin operaciones</td></tr>`;
     } else {
       mobileTbody.innerHTML = [...allTrades].reverse().slice(0,10).map(t => `<tr>
         <td><span class="pill pill-${t.side.toLowerCase()}">${t.side}</span></td>
