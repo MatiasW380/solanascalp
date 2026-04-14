@@ -335,8 +335,9 @@ async function fetchAll() {
       document.getElementById("status-text").textContent = "DESCONECTADO";
     }
 
-    const cap = state.capital || 10000;
-    const ret = (cap - 10000) / 10000 * 100;
+    const cap = state.capital || 1000;
+    const initialCap = state.initial_capital || 1000;
+    const ret = (cap - initialCap) / initialCap * 100;
     const wins = state.total_wins || 0, losses = state.total_losses || 0;
     const tot = wins + losses;
     const wr = tot > 0 ? wins/tot*100 : 0;
