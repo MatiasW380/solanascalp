@@ -260,4 +260,391 @@ td { padding: 4px 5px; }
         <div class="mobile-pos-item"><div class="mobile-pos-label green">TP</div><div class="mobile-pos-value green" id="mobile-pos-tp">—</div></div>
         <div class="mobile-pos-item"><div class="mobile-pos-label red">SL</div><div class="mobile-pos-value red" id="mobile-pos-sl">—</div></div>
         <div class="mobile-pos-item"><div class="mobile-pos-label">DURACIÓN</div><div class="mobile-pos-value" id="mobile-pos-dur">—</div></div>
-        <div class="mobile-pos-item"><div class="mobile-pos-label cyan">AVWAP ENT</div><div class="mobile-pos-value" id="mobile-pos-avwap">—</div
+        <div class="mobile-pos-item"><div class="mobile-pos-label cyan">AVWAP ENT</div><div class="mobile-pos-value" id="mobile-pos-avwap">—</div></div>
+        <div class="mobile-pos-item"><div class="mobile-pos-label cyan">EMA21 ENT</div><div class="mobile-pos-value" id="mobile-pos-ema21">—</div></div>
+      </div>
+      <div class="mobile-cool" id="mobile-cool">Cooldown: —</div>
+    </div>
+    <div class="mobile-card"><div class="mobile-card-title">MERCADO</div>
+      <div style="text-align:center;margin-bottom:12px"><span style="font-size:10px;color:var(--muted2)">BTC/USDT</span><div style="font-size:28px;font-weight:700" id="mobile-price">—</div></div>
+      <div class="mobile-indicators">
+        <div class="mobile-ind"><div class="mobile-ind-label">AVWAP</div><div class="mobile-ind-value cyan" id="mobile-avwap">—</div></div>
+        <div class="mobile-ind"><div class="mobile-ind-label">EMA21</div><div class="mobile-ind-value" id="mobile-ema21">—</div></div>
+      </div>
+      <div class="signal-box" id="mobile-signal-box" style="margin-top:12px">Calculando señal...</div>
+    </div>
+    <div class="mobile-card"><div class="mobile-card-title">RENDIMIENTO</div>
+      <div class="mobile-metrics">
+        <div class="mobile-met"><div class="mobile-met-label">RETURN</div><div class="mobile-met-value" id="mobile-return">—</div></div>
+        <div class="mobile-met"><div class="mobile-met-label">CAPITAL</div><div class="mobile-met-value" id="mobile-capital">—</div></div>
+        <div class="mobile-met"><div class="mobile-met-label">WIN RATE</div><div class="mobile-met-value" id="mobile-wr">—</div></div>
+        <div class="mobile-met"><div class="mobile-met-label">MAX DD</div><div class="mobile-met-value" id="mobile-dd">—</div></div>
+        <div class="mobile-met"><div class="mobile-met-label">W / L</div><div class="mobile-met-value" id="mobile-wl">—</div></div>
+        <div class="mobile-met"><div class="mobile-met-label">GROSS PnL</div><div class="mobile-met-value" id="mobile-pnl">—</div></div>
+      </div>
+    </div>
+    <div class="mobile-card"><div class="mobile-card-title">ÚLTIMAS OPERACIONES</div>
+      <div class="mobile-trades">
+        <table>
+          <thead><tr><th>LADO</th><th>ENTRADA</th><th>PnL</th><th>RES</th></tr></thead>
+          <tbody id="mobile-trades-body"><tr><td colspan="4">Sin operaciones</td></tr>
+        </tbody>
+      </table>
+      </div>
+    </div>
+    <div class="mobile-card"><div class="mobile-card-title">HISTORIAL DIARIO</div>
+      <div id="mobile-snapshots"><div class="snap-row">Sin datos</div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const API_BASE = "https://matiasbarone.pythonanywhere.com/api/btc";
+const REFRESH = 60000;
+let chartMode = "capital", equityChart = null;
+let allTrades = [], allSnapshots = [];
+
+function updateCooldown(remainingSec) {
+  const remaining = Math.max(0, Math.floor(remainingSec / 60));
+  const cdTexts = ["cooldown-text", "mobile-cool", "desk-pos-cool"];
+  cdTexts.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = remaining > 0 ? `${remaining} min` : "--";
+  });
+  const cdBadgeText = document.getElementById("cooldown-text");
+  if (cdBadgeText) cdBadgeText.textContent = remaining > 0 ? `CD: ${remaining} min` : "CD: --";
+  const cdDot = document.querySelector(".cooldown-dot");
+  if (cdDot) cdDot.style.background = remaining > 0 ? "#ffab00" : "#4a5568";
+  return remaining > 0;
+}
+
+async function fetchAll() {
+  try {
+    const [stR, trR, snR] = await Promise.all([
+      fetch(`${API_BASE}/state`),
+      fetch(`${API_BASE}/trades`),
+      fetch(`${API_BASE}/snapshots`)
+    ]);
+    
+    const state = await stR.json();
+    allTrades = await trR.json();
+    allSnapshots = await snR.json();
+    
+    // Estado del bot
+    if (state && state.capital !== undefined) {
+      document.getElementById("status-pill").className = "status-pill alive";
+      document.getElementById("status-text").textContent = "ACTIVO";
+    } else {
+      document.getElementById("status-pill").className = "status-pill dead";
+      document.getElementById("status-text").textContent = "DESCONECTADO";
+    }
+
+    const cap = state.capital || 1000;
+    const initialCap = state.initial_capital || 1000;
+    const ret = (cap - initialCap) / initialCap * 100;
+    const wins = state.total_wins || 0, losses = state.total_losses || 0;
+    const tot = wins + losses;
+    const wr = tot > 0 ? wins/tot*100 : 0;
+    const dd = state.max_drawdown_pct || 0;
+    const price = state.last_price || 0;
+    const avwap = state.avwap_current;
+    const ema21 = state.ema21_current;
+    const coolUntil = state.cooldown_until || 0;
+    const remainingSec = coolUntil - Date.now()/1000;
+    const inCooldown = updateCooldown(remainingSec);
+    
+    // Determinar señal potencial basada en contexto AVWAP/EMA21
+    let signalReady = false;
+    let signalDirection = null;
+    let signalText = "";
+    if (avwap && ema21 && price) {
+      if (price > avwap && price > ema21) {
+        signalReady = true;
+        signalDirection = "LONG";
+        signalText = `🔺 CONTEXTO ALCISTA (Precio > AVWAP y > EMA21)`;
+      } else if (price < avwap && price < ema21) {
+        signalReady = true;
+        signalDirection = "SHORT";
+        signalText = `🔻 CONTEXTO BAJISTA (Precio < AVWAP y < EMA21)`;
+      } else {
+        signalText = `🟡 CONTEXTO NEUTRO | AVWAP: ${avwap?.toFixed(0)} | EMA21: ${ema21?.toFixed(0)}`;
+      }
+    } else {
+      signalText = `AVWAP: ${avwap?.toFixed(0) || "--"} | EMA21: ${ema21?.toFixed(0) || "--"}`;
+    }
+
+    // HEADER
+    if (price) document.getElementById("h-price").textContent = `$${price.toLocaleString()}`;
+    if (avwap) {
+      document.getElementById("h-avwap").textContent = avwap.toFixed(0);
+      document.getElementById("h-avwap").className = `h-ind-val ${price > avwap ? "green" : "red"}`;
+    }
+    if (ema21) {
+      document.getElementById("h-ema21").textContent = ema21.toFixed(0);
+      document.getElementById("h-ema21").className = `h-ind-val ${price > ema21 ? "green" : "red"}`;
+    }
+    document.getElementById("h-capital").textContent = `$${(cap/1000).toFixed(1)}k`;
+    document.getElementById("h-return").textContent = `${ret>=0?"+":""}${ret.toFixed(2)}%`;
+    document.getElementById("h-return").className = `h-ind-val ${ret>=0?"green":"red"}`;
+    document.getElementById("h-wr").textContent = `${wr.toFixed(1)}%`;
+    document.getElementById("h-wr").className = `h-ind-val ${wr>=55?"green":wr>=45?"yellow":"red"}`;
+    document.getElementById("h-dd").textContent = `${dd.toFixed(1)}%`;
+    document.getElementById("h-dd").className = `h-ind-val ${dd<10?"green":dd<20?"yellow":"red"}`;
+
+    // INDICADORES Desktop
+    if (avwap) {
+      document.getElementById("desk-r-avwap").textContent = avwap.toFixed(0);
+      document.getElementById("desk-r-avwap").className = `ind-val ${price > avwap ? "green" : "red"}`;
+      document.getElementById("mobile-avwap").textContent = avwap.toFixed(0);
+      document.getElementById("mobile-avwap").className = `mobile-ind-value ${price > avwap ? "green" : "red"}`;
+    }
+    if (ema21) {
+      document.getElementById("desk-r-ema21").textContent = ema21.toFixed(0);
+      document.getElementById("desk-r-ema21").className = `ind-val ${price > ema21 ? "green" : "red"}`;
+      document.getElementById("mobile-ema21").textContent = ema21.toFixed(0);
+      document.getElementById("mobile-ema21").className = `mobile-ind-value ${price > ema21 ? "green" : "red"}`;
+    }
+
+    // SEÑAL
+    const deskSignal = document.getElementById("desk-signal-box");
+    const mobileSignal = document.getElementById("mobile-signal-box");
+    if (state.position) {
+      const msg = `● ${state.position} ABIERTA | Beneficio: ${state.position === "LONG" ? ((price - state.entry_price)/state.entry_price*100).toFixed(2) : ((state.entry_price - price)/state.entry_price*100).toFixed(2)}%`;
+      deskSignal.className = "signal-box ready";
+      deskSignal.textContent = msg;
+      mobileSignal.className = "signal-box ready";
+      mobileSignal.textContent = msg;
+    } else if (signalReady && !inCooldown) {
+      const msg = `● SEÑAL POTENCIAL ${signalDirection} — ${signalText}`;
+      deskSignal.className = "signal-box ready";
+      deskSignal.textContent = msg;
+      mobileSignal.className = "signal-box ready";
+      mobileSignal.textContent = msg;
+    } else if (signalReady && inCooldown) {
+      const msg = `◐ SEÑAL ${signalDirection} — ESPERANDO COOLDOWN`;
+      deskSignal.className = "signal-box almost";
+      deskSignal.textContent = msg;
+      mobileSignal.className = "signal-box almost";
+      mobileSignal.textContent = msg;
+    } else {
+      deskSignal.className = "signal-box";
+      deskSignal.textContent = signalText;
+      mobileSignal.className = "signal-box";
+      mobileSignal.textContent = signalText;
+    }
+
+    // MÉTRICAS Móvil
+    if (price) document.getElementById("mobile-price").textContent = `$${price.toLocaleString()}`;
+    document.getElementById("mobile-return").textContent = `${ret>=0?"+":""}${ret.toFixed(2)}%`;
+    document.getElementById("mobile-return").className = `mobile-met-value ${ret>=0?"green":"red"}`;
+    document.getElementById("mobile-capital").textContent = `$${(cap/1000).toFixed(1)}k`;
+    document.getElementById("mobile-wr").textContent = `${wr.toFixed(1)}%`;
+    document.getElementById("mobile-dd").textContent = `${dd.toFixed(1)}%`;
+    document.getElementById("mobile-wl").innerHTML = `<span class="green">${wins}</span>/<span class="red">${losses}</span>`;
+    const grossPnl = state.gross_pnl || 0;
+    document.getElementById("mobile-pnl").textContent = `${grossPnl>=0?"+":""}$${Math.abs(grossPnl).toFixed(0)}`;
+    document.getElementById("mobile-pnl").className = `mobile-met-value ${grossPnl>=0?"green":"red"}`;
+
+    // MÉTRICAS Desktop
+    document.getElementById("desk-m-return").textContent = `${ret>=0?"+":""}${ret.toFixed(2)}%`;
+    document.getElementById("desk-m-return").className = `met-val ${ret>=0?"green":"red"}`;
+    document.getElementById("desk-m-wr").textContent = `${wr.toFixed(1)}%`;
+    document.getElementById("desk-m-wr").className = `met-val ${wr>=55?"green":wr>=45?"yellow":"red"}`;
+    document.getElementById("desk-m-cap").textContent = `$${(cap/1000).toFixed(1)}k`;
+    document.getElementById("desk-m-pnl").textContent = `${grossPnl>=0?"+":""}$${Math.abs(grossPnl).toFixed(0)}`;
+    document.getElementById("desk-m-pnl").className = `met-val ${grossPnl>=0?"green":"red"}`;
+    document.getElementById("desk-m-dd").textContent = `${dd.toFixed(1)}%`;
+    document.getElementById("desk-m-wl").innerHTML = `<span class="green">${wins}</span>/<span class="red">${losses}</span>`;
+    document.getElementById("desk-p-streak").textContent = state.max_consecutive_losses || 0;
+
+    // POSICIÓN
+    const CONFIG_TP = 1.2;
+    const CONFIG_SL = 0.35;
+    
+    if (state.position) {
+      const side = state.position;
+      document.getElementById("desk-pos-side").textContent = side;
+      document.getElementById("desk-pos-side").className = `pos-side ${side.toLowerCase()}`;
+      document.getElementById("desk-pos-entry").textContent = `$${(state.entry_price||0).toLocaleString()}`;
+      const lev=10, tpP=CONFIG_TP, slP=CONFIG_SL;
+      let tp, sl;
+      if (side === "LONG") { 
+        tp = state.entry_price * (1 + tpP/lev/100); 
+        sl = state.entry_price * (1 - slP/lev/100); 
+      } else { 
+        tp = state.entry_price * (1 - tpP/lev/100); 
+        sl = state.entry_price * (1 + slP/lev/100); 
+      }
+      document.getElementById("desk-pos-tp").textContent = `$${tp.toLocaleString()}`;
+      document.getElementById("desk-pos-sl").textContent = `$${sl.toLocaleString()}`;
+      document.getElementById("desk-pos-avwap").textContent = state.entry_ema_fast ? state.entry_ema_fast.toFixed(0) : "—";
+      document.getElementById("desk-pos-ema21").textContent = state.entry_ema_slow ? state.entry_ema_slow.toFixed(0) : "—";
+      const dur = state.entry_time ? Math.floor((Date.now()/1000 - state.entry_time)/60) : 0;
+      document.getElementById("desk-pos-dur").textContent = `${dur}m`;
+      let pnl = 0;
+      if (side === "LONG") pnl = (price - state.entry_price)/state.entry_price*lev*100;
+      else pnl = (state.entry_price - price)/state.entry_price*lev*100;
+      document.getElementById("desk-pos-pnl").textContent = `${pnl>=0?"+":""}${pnl.toFixed(2)}%`;
+      document.getElementById("desk-pos-pnl").className = `pos-item-val ${pnl>=0?"green":"red"}`;
+      
+      const mobileSide = document.getElementById("mobile-pos-side");
+      mobileSide.textContent = side;
+      mobileSide.className = `mobile-pos-side ${side.toLowerCase()}`;
+      document.getElementById("mobile-pos-entry").textContent = `$${(state.entry_price||0).toLocaleString()}`;
+      document.getElementById("mobile-pos-tp").textContent = `$${tp.toLocaleString()}`;
+      document.getElementById("mobile-pos-sl").textContent = `$${sl.toLocaleString()}`;
+      document.getElementById("mobile-pos-avwap").textContent = state.entry_ema_fast ? state.entry_ema_fast.toFixed(0) : "—";
+      document.getElementById("mobile-pos-ema21").textContent = state.entry_ema_slow ? state.entry_ema_slow.toFixed(0) : "—";
+      document.getElementById("mobile-pos-dur").textContent = `${dur}m`;
+      document.getElementById("mobile-pos-pnl").textContent = `${pnl>=0?"+":""}${pnl.toFixed(2)}%`;
+      document.getElementById("mobile-pos-pnl").className = `mobile-pos-value ${pnl>=0?"green":"red"}`;
+    } else {
+      document.getElementById("desk-pos-side").textContent = "FLAT";
+      document.getElementById("desk-pos-side").className = "pos-side muted";
+      ["desk-pos-entry","desk-pos-tp","desk-pos-sl","desk-pos-dur","desk-pos-avwap","desk-pos-ema21"].forEach(id => document.getElementById(id).textContent = "—");
+      document.getElementById("desk-pos-pnl").textContent = "—";
+      document.getElementById("mobile-pos-side").textContent = "FLAT";
+      document.getElementById("mobile-pos-side").className = "mobile-pos-side flat";
+      ["mobile-pos-entry","mobile-pos-tp","mobile-pos-sl","mobile-pos-dur","mobile-pos-avwap","mobile-pos-ema21"].forEach(id => document.getElementById(id).textContent = "—");
+      document.getElementById("mobile-pos-pnl").textContent = "—";
+    }
+
+    // TABLA DE TRADES Desktop
+    const deskTbody = document.getElementById("desk-trades-tbody");
+    if (!allTrades || allTrades.length === 0) {
+      deskTbody.innerHTML = `<tr><td colspan="7">Sin operaciones</td></tr>`;
+    } else {
+      deskTbody.innerHTML = [...allTrades].reverse().slice(0,20).map(t => `<tr>
+        <td><span class="pill pill-${t.side?.toLowerCase()}">${t.side}</span></td>
+        <td>$${(t.entry_price||0).toLocaleString()}</td>
+        <td>$${(t.exit_price||0).toLocaleString()}</td>
+        <td>${t.duration_min||0}m</td>
+        <td class="${t.pnl_pct>=0?"green":"red"}">${t.pnl_pct>=0?"+":""}${(t.pnl_pct||0).toFixed(2)}%</td>
+        <td>${t.entry_avwap?.toFixed(0)||"—"}</td>
+        <td><span class="pill pill-${(t.reason||"").toLowerCase()}">${t.reason||"—"}</span></td>
+      `).join("");
+    }
+    
+    // TABLA DE TRADES Mobile
+    const mobileTbody = document.getElementById("mobile-trades-body");
+    if (!allTrades || allTrades.length === 0) {
+      mobileTbody.innerHTML = `<tr><td colspan="4">Sin operaciones</td></tr>`;
+    } else {
+      mobileTbody.innerHTML = [...allTrades].reverse().slice(0,10).map(t => `<tr>
+        <td><span class="pill pill-${t.side?.toLowerCase()}">${t.side}</span></td>
+        <td>$${(t.entry_price||0).toLocaleString()}</td>
+        <td class="${t.pnl_pct>=0?"green":"red"}">${t.pnl_pct>=0?"+":""}${(t.pnl_pct||0).toFixed(2)}%</td>
+        <td><span class="pill pill-${(t.reason||"").toLowerCase()}">${t.reason||"—"}</span></td>
+      `).join("");
+    }
+
+    // SNAPSHOTS
+    const snapDivDesktop = document.getElementById("desk-snap-rows");
+    const snapDivMobile = document.getElementById("mobile-snapshots");
+    
+    if (!allSnapshots || allSnapshots.length === 0) {
+      if (snapDivDesktop) snapDivDesktop.innerHTML = '<div class="snap-row"><span class="snap-key">Sin datos</span></div>';
+      if (snapDivMobile) snapDivMobile.innerHTML = '<div class="snap-row"><span class="snap-key">Sin datos</span></div>';
+    } else {
+      const snapshotsReversed = [...allSnapshots].reverse().slice(0,10);
+      if (snapDivDesktop) {
+        snapDivDesktop.innerHTML = snapshotsReversed.map(s => `
+          <div class="snap-row">
+            <span class="snap-key">${s.date} · ${s.total_trades||0}t · WR ${(s.win_rate||0).toFixed(0)}%</span>
+            <span class="snap-val ${s.return_total>=0?"green":"red"}">${s.return_total>=0?"+":""}${(s.return_total||0).toFixed(2)}%</span>
+          </div>
+        `).join("");
+      }
+      if (snapDivMobile) {
+        snapDivMobile.innerHTML = snapshotsReversed.map(s => `
+          <div class="snap-row">
+            <span class="snap-key">${s.date} · ${s.total_trades||0}t</span>
+            <span class="snap-val ${s.return_total>=0?"green":"red"}">${s.return_total>=0?"+":""}${(s.return_total||0).toFixed(2)}%</span>
+          </div>
+        `).join("");
+      }
+    }
+
+    // EQUITY CHART
+    if (allSnapshots && allSnapshots.length > 0) {
+      const labels = allSnapshots.map(s => s.date.slice(5));
+      const isCap = chartMode === "capital";
+      const data = isCap ? allSnapshots.map(s => s.capital||10000) : allSnapshots.map(s => s.return_total||0);
+      const ctx = document.getElementById("equityChart").getContext("2d");
+      if (equityChart) equityChart.destroy();
+      equityChart = new Chart(ctx, {
+        type: "line",
+        data: { labels, datasets: [{ data, borderColor: "#00e676", borderWidth: 1.5, pointRadius: 2, pointBackgroundColor: "#00e676", fill: false, tension: 0.3 }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => isCap ? ` $${c.parsed.y.toLocaleString()}` : ` ${c.parsed.y.toFixed(2)}%` } } }, scales: { x: { ticks: { color: "#4a5568", font: { size: 7 } } }, y: { ticks: { color: "#4a5568", font: { size: 7 }, callback: v => isCap ? `$${(v/1000).toFixed(0)}k` : `${v.toFixed(0)}%` } } } }
+      });
+    }
+    
+    document.getElementById("h-update").textContent = new Date().toLocaleTimeString("es-AR");
+    
+  } catch(e) {
+    console.error("Error fetching data:", e);
+    document.getElementById("status-pill").className = "status-pill dead";
+    document.getElementById("status-text").textContent = "DESCONECTADO";
+  }
+}
+
+function setChartMode(mode) {
+  chartMode = mode;
+  document.getElementById("btn-cap").classList.toggle("active", mode==="capital");
+  document.getElementById("btn-ret").classList.toggle("active", mode==="return");
+  fetchAll();
+}
+
+function downloadCSV() {
+  if (!allTrades || allTrades.length === 0) return;
+  const headers = ["timestamp","side","entry_price","exit_price","duration_min","entry_avwap","pnl_pct","reason"];
+  const rows = allTrades.map(t => headers.map(h => `"${t[h] !== undefined ? t[h] : ""}"`).join(","));
+  const blob = new Blob([[headers.join(","), ...rows].join("\n")], { type: "text/csv" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `trades_avwap_${new Date().toISOString().split("T")[0]}.csv`;
+  a.click();
+}
+
+function initTradingView() {
+  if (typeof TradingView === "undefined") {
+    setTimeout(initTradingView, 200);
+    return;
+  }
+  if (document.getElementById("tv-chart-container")) {
+    new TradingView.widget({
+      container_id: "tv-chart-container",
+      symbol: "OKX:BTCUSD.P",
+      interval: "5",
+      timezone: "America/Argentina/Buenos_Aires",
+      theme: "dark",
+      style: "1",
+      locale: "es",
+      toolbar_bg: "#0e1115",
+      enable_publishing: false,
+      hide_top_toolbar: false,
+      save_image: false,
+      backgroundColor: "#080a0c",
+      gridColor: "#1e2530",
+      studies: [
+        { id: "EMA", inputs: { length: 21, color: "#ffab00" } },
+      ],
+      overrides: {
+        "mainSeriesProperties.candleStyle.upColor": "#00e676",
+        "mainSeriesProperties.candleStyle.downColor": "#ff3d57",
+        "paneProperties.background": "#080a0c",
+        "volumePaneSize": "hidden"
+      },
+      autosize: true
+    });
+  }
+}
+  
+document.addEventListener("DOMContentLoaded", function() {
+  initTradingView();
+  fetchAll();
+  setInterval(fetchAll, REFRESH);
+});
+</script>
+</body>
+</html>
