@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
-<title>BTC AVWAP BOT · Pullback + RSI cross</title>
+<title>ETH AVWAP BOT · LONG+SHORT · PULLBACK AVWAP + RSI</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Barlow+Condensed:wght@300;400;600;700;900&display=swap" rel="stylesheet"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
@@ -20,7 +20,6 @@
   --green: #00e676;
   --red: #ff3d57;
   --yellow: #ffab00;
-  --cyan: #00bcd4;
   --mono: 'Space Mono', monospace;
   --cond: 'Barlow Condensed', sans-serif;
 }
@@ -31,8 +30,8 @@ html, body { width: 100%; min-height: 100vh; background: var(--bg); color: var(-
   display: grid; grid-template-columns: auto 1fr auto; align-items: center;
   padding: 10px 14px; background: var(--bg2); border-bottom: 1px solid var(--bd); gap: 16px;
 }
-.logo { font-family: var(--cond); font-size: 18px; font-weight: 900; color: var(--cyan); letter-spacing: 0.05em; white-space: nowrap; }
-.h-center { display: flex; align-items: center; justify-content: center; gap: 24px; }
+.logo { font-family: var(--cond); font-size: 18px; font-weight: 900; color: var(--green); letter-spacing: 0.05em; white-space: nowrap; }
+.h-center { display: flex; align-items: center; justify-content: center; gap: 24px; flex-wrap: wrap; }
 .h-price { display: flex; flex-direction: column; align-items: center; }
 .h-price-label { font-size: 8px; color: var(--muted2); letter-spacing: 0.12em; }
 .h-price-val { font-size: 18px; font-weight: 700; line-height: 1.1; }
@@ -43,20 +42,16 @@ html, body { width: 100%; min-height: 100vh; background: var(--bg); color: var(-
 .status-pill {
   display: flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 20px;
   border: 1px solid var(--bd); font-size: 9px; letter-spacing: 0.1em; background: var(--bg3);
-  transition: all 0.2s ease;
 }
 .status-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--muted); }
 .status-pill.alive { border-color: var(--green); color: var(--green); background: rgba(0,230,118,0.1); }
 .status-pill.alive .status-dot { background: var(--green); animation: blink 2s infinite; }
-.status-pill.dead { border-color: var(--red); color: var(--red); background: rgba(255,61,87,0.15); animation: pulse-red 0.8s infinite; }
+.status-pill.dead { border-color: var(--red); color: var(--red); background: rgba(255,61,87,0.15); }
 .cooldown-badge {
   display: flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 20px;
   border: 1px solid var(--bd); background: var(--bg3); font-size: 8px;
 }
 .cooldown-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--muted); }
-.cooldown-text { color: var(--muted2); }
-@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
-@keyframes pulse-red { 0%{background:rgba(255,61,87,0.15)} 50%{background:rgba(255,61,87,0.4)} 100%{background:rgba(255,61,87,0.15)} }
 .h-update { font-size: 7px; color: var(--muted); }
 .desktop-layout { display: none; grid-template-columns: 280px 1fr 280px; gap: 0; flex: 1; overflow: hidden; }
 .mobile-layout { display: flex; flex-direction: column; gap: 12px; padding: 12px; overflow-y: auto; flex: 1; }
@@ -137,8 +132,12 @@ thead th { padding: 3px 5px; text-align: left; color: var(--muted2); font-size: 
 tbody tr { border-bottom: 1px solid rgba(30,37,48,.4); }
 td { padding: 4px 5px; }
 .pill { display: inline-block; padding: 1px 5px; border-radius: 8px; font-size: 7px; font-weight: 700; letter-spacing: 0.05em; }
-.pill-long, .pill-LONG { background: rgba(0,230,118,.15); color: var(--green); }
-.pill-short, .pill-SHORT { background: rgba(255,61,87,.15); color: var(--red); }
+.pill-long, .pill-LONG, .pill-buy { background: rgba(0,230,118,.15); color: var(--green); }
+.pill-short, .pill-SHORT, .pill-sell { background: rgba(255,61,87,.15); color: var(--red); }
+.pill-TRAILING_STOP { background: rgba(255,171,0,.15); color: var(--yellow); }
+.pill-BREAKEVEN { background: rgba(0,230,118,.1); color: var(--green); }
+.pill-EXTERNAL_CLOSE { background: rgba(100,116,139,.2); color: var(--muted2); }
+.pill-TIMEOUT_CLOSE { background: rgba(255,61,87,.2); color: var(--red); }
 .snap-row { display: flex; justify-content: space-between; padding: 3px 0; border-bottom: 1px solid var(--bd); font-size: 10px; }
 .snap-row:last-child { border-bottom: none; }
 .snap-key { color: var(--muted2); }
@@ -146,8 +145,8 @@ td { padding: 4px 5px; }
 .green { color: var(--green); }
 .red { color: var(--red); }
 .yellow { color: var(--yellow); }
-.cyan { color: var(--cyan); }
 .muted { color: var(--muted2); }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
 @media (min-width: 900px) { .mobile-layout { display: none; } .desktop-layout { display: grid; } .root { height: 100vh; overflow: hidden; } }
 @media (max-width: 899px) { .desktop-layout { display: none; } .mobile-layout { display: flex; } }
 </style>
@@ -156,13 +155,14 @@ td { padding: 4px 5px; }
 <div class="root">
   <header class="header">
     <div style="display:flex;align-items:center;gap:10px">
-      <span class="logo">◈ BTC AVWAP BOT · Pullback + RSI cross</span>
-      <span style="font-size:9px;color:var(--muted2);letter-spacing:.1em">BTC-USDT-SWAP · 5m · 10x</span>
+      <span class="logo">◈ AVWAP BOT · ETH</span>
+      <span style="font-size:9px;color:var(--muted2);letter-spacing:.1em">ETH-USDT-SWAP · 5m · 10x</span>
     </div>
     <div class="h-center">
-      <div class="h-price"><span class="h-price-label">BTC / USDT</span><span id="h-price" class="h-price-val">—</span></div>
+      <div class="h-price"><span class="h-price-label">ETH / USD</span><span id="h-price" class="h-price-val">—</span></div>
       <div class="h-ind"><span class="h-ind-label">AVWAP</span><span id="h-avwap" class="h-ind-val muted">—</span></div>
       <div class="h-ind"><span class="h-ind-label">EMA21</span><span id="h-ema21" class="h-ind-val muted">—</span></div>
+      <div class="h-ind"><span class="h-ind-label">ADX</span><span id="h-adx" class="h-ind-val muted">—</span></div>
       <div class="h-ind"><span class="h-ind-label">CAPITAL</span><span id="h-capital" class="h-ind-val muted">—</span></div>
       <div class="h-ind"><span class="h-ind-label">RETURN</span><span id="h-return" class="h-ind-val muted">—</span></div>
       <div class="h-ind"><span class="h-ind-label">WIN RATE</span><span id="h-wr" class="h-ind-val muted">—</span></div>
@@ -186,8 +186,7 @@ td { padding: 4px 5px; }
           <div class="pos-item"><div class="pos-item-label green">TAKE PROFIT</div><div class="pos-item-val green" id="desk-pos-tp">—</div></div>
           <div class="pos-item"><div class="pos-item-label red">STOP LOSS</div><div class="pos-item-val red" id="desk-pos-sl">—</div></div>
           <div class="pos-item"><div class="pos-item-label">DURACIÓN</div><div class="pos-item-val muted" id="desk-pos-dur">—</div></div>
-          <div class="pos-item"><div class="pos-item-label cyan">AVWAP ENTRADA</div><div class="pos-item-val muted" id="desk-pos-avwap">—</div></div>
-          <div class="pos-item"><div class="pos-item-label cyan">EMA21 ENTRADA</div><div class="pos-item-val muted" id="desk-pos-ema21">—</div></div>
+          <div class="pos-item"><div class="pos-item-label">CONTRATOS</div><div class="pos-item-val muted" id="desk-pos-sz">—</div></div>
         </div>
         <div style="margin-top:6px;font-size:10px;color:var(--muted2)">Cooldown: <span id="desk-pos-cool" style="color:var(--yellow)">—</span></div>
       </div>
@@ -201,23 +200,20 @@ td { padding: 4px 5px; }
           <div class="met"><div class="met-val" id="desk-m-wl">—</div><div class="met-lbl">W / L</div></div>
         </div>
       </div>
-      <div class="sec" style="flex:1"><div class="sec-label">PARÁMETROS</div>
-        <div class="p-row"><span class="p-key">Estrategia</span><span class="p-val cyan">Pullback AVWAP + RSI cross</span></div>
-        <div class="p-row"><span class="p-key">Take Profit 1</span><span class="p-val green">1.2% (50%)</span></div>
-        <div class="p-row"><span class="p-key">Stop Loss</span><span class="p-val red">0.35%</span></div>
+      <div class="sec" style="flex:1"><div class="sec-label">ESTRATEGIA AVWAP</div>
+        <div class="p-row"><span class="p-key">TP / SL</span><span class="p-val green">1.2% / ATR×2</span></div>
         <div class="p-row"><span class="p-key">Breakeven</span><span class="p-val muted">0.5%</span></div>
-        <div class="p-row"><span class="p-key">Trailing</span><span class="p-val muted">0.7% → 0.2% dist</span></div>
+        <div class="p-row"><span class="p-key">Trailing</span><span class="p-val muted">2.0% / 0.5%</span></div>
         <div class="p-row"><span class="p-key">Leverage</span><span class="p-val">10x</span></div>
-        <div class="p-row"><span class="p-key">Pos. Size</span><span class="p-val muted">2% (margen)</span></div>
-        <div class="p-row"><span class="p-key">Riesgo/trade</span><span class="p-val muted">1% capital</span></div>
-        <div class="p-row"><span class="p-key">Timeframe</span><span class="p-val muted">5m</span></div>
-        <div class="p-row"><span class="p-key">ADX min</span><span class="p-val muted">20</span></div>
-        <div class="p-row"><span class="p-key">Vol retroceso</span><span class="p-val muted">< 0.9x avg</span></div>
+        <div class="p-row"><span class="p-key">Risk per trade</span><span class="p-val muted">1.0%</span></div>
+        <div class="p-row"><span class="p-key">Vol. threshold</span><span class="p-val muted">0.9 ratio</span></div>
+        <div class="p-row"><span class="p-key">ADX mínimo</span><span class="p-val">&gt; 20</span></div>
+        <div class="p-row"><span class="p-key">Timeout</span><span class="p-val muted">48h (pérdidas)</span></div>
       </div>
     </div>
 
     <div class="col-center">
-      <div class="tv-wrap"><div class="tv-header"><span class="tv-label">BTC-USDT-SWAP · OKX · 5m</span></div>
+      <div class="tv-wrap"><div class="tv-header"><span class="tv-label">ETH-USD - 5m con AVWAP</span></div>
         <div id="tv-chart-container" style="height:500px;width:100%;"></div>
       </div>
       <div class="equity-sec"><div class="equity-header"><span style="font-size:8px;letter-spacing:.14em;color:var(--muted2);font-weight:700">EQUITY</span>
@@ -228,18 +224,19 @@ td { padding: 4px 5px; }
 
     <div class="col-right">
       <div class="sec"><div class="sec-label">INDICADORES</div>
-        <div class="ind-block"><div class="ind-row"><span class="ind-name">AVWAP · ANCLADO DÍA</span><span class="ind-val cyan" id="desk-r-avwap">—</span></div></div>
-        <div class="ind-block"><div class="ind-row"><span class="ind-name">EMA21 · LENTA</span><span class="ind-val muted" id="desk-r-ema21">—</span></div></div>
+        <div class="ind-block"><div class="ind-row"><span class="ind-name">AVWAP</span><span class="ind-val muted" id="desk-avwap">—</span></div></div>
+        <div class="ind-block"><div class="ind-row"><span class="ind-name">EMA · 21</span><span class="ind-val muted" id="desk-ema21">—</span></div></div>
+        <div class="ind-block"><div class="ind-row"><span class="ind-name">ADX · 14</span><span class="ind-val muted" id="desk-adx">—</span></div>
+          <div class="bar-track"><div class="bar-fill" id="desk-adx-bar" style="width:0%"></div><div class="bar-mark" style="left:20%"><span class="bar-mark-lbl">20↑</span></div></div></div>
         <div class="signal-box" id="desk-signal-box">Calculando señal...</div>
       </div>
       <div class="sec trades-sec"><div class="trades-header">ÚLTIMAS OPERACIONES<button class="csv-btn" onclick="downloadCSV()">↓ CSV</button></div>
         <div class="trades-wrap">
           <table>
-            <thead>
-              <tr><th>LADO</th><th>ENTRADA</th><th>SALIDA</th><th>DUR</th><th>PnL</th><th>AVWAP ENT</th><th>RES</th></tr>
+            <thead><tr><th>LADO</th><th>ENTRADA</th><th>SALIDA</th><th>DUR</th><th>PnL NETO</th><th>RES</th></tr>
             </thead>
             <tbody id="desk-trades-tbody">
-              <tr><td colspan="7">Sin operaciones</td></tr>
+              <tr><td colspan="6">Sin operaciones</td></tr>
             </tbody>
           </table>
         </div>
@@ -260,16 +257,17 @@ td { padding: 4px 5px; }
         <div class="mobile-pos-item"><div class="mobile-pos-label green">TP</div><div class="mobile-pos-value green" id="mobile-pos-tp">—</div></div>
         <div class="mobile-pos-item"><div class="mobile-pos-label red">SL</div><div class="mobile-pos-value red" id="mobile-pos-sl">—</div></div>
         <div class="mobile-pos-item"><div class="mobile-pos-label">DURACIÓN</div><div class="mobile-pos-value" id="mobile-pos-dur">—</div></div>
-        <div class="mobile-pos-item"><div class="mobile-pos-label cyan">AVWAP ENT</div><div class="mobile-pos-value" id="mobile-pos-avwap">—</div></div>
-        <div class="mobile-pos-item"><div class="mobile-pos-label cyan">EMA21 ENT</div><div class="mobile-pos-value" id="mobile-pos-ema21">—</div></div>
+        <div class="mobile-pos-item"><div class="mobile-pos-label">CONTRATOS</div><div class="mobile-pos-value" id="mobile-pos-sz">—</div></div>
       </div>
       <div class="mobile-cool" id="mobile-cool">Cooldown: —</div>
     </div>
     <div class="mobile-card"><div class="mobile-card-title">MERCADO</div>
-      <div style="text-align:center;margin-bottom:12px"><span style="font-size:10px;color:var(--muted2)">BTC/USDT</span><div style="font-size:28px;font-weight:700" id="mobile-price">—</div></div>
+      <div style="text-align:center;margin-bottom:12px"><span style="font-size:10px;color:var(--muted2)">ETH/USD</span><div style="font-size:28px;font-weight:700" id="mobile-price">—</div></div>
       <div class="mobile-indicators">
-        <div class="mobile-ind"><div class="mobile-ind-label">AVWAP</div><div class="mobile-ind-value cyan" id="mobile-avwap">—</div></div>
+        <div class="mobile-ind"><div class="mobile-ind-label">AVWAP</div><div class="mobile-ind-value" id="mobile-avwap">—</div></div>
         <div class="mobile-ind"><div class="mobile-ind-label">EMA21</div><div class="mobile-ind-value" id="mobile-ema21">—</div></div>
+        <div class="mobile-ind"><div class="mobile-ind-label">ADX</div><div class="mobile-ind-value" id="mobile-adx">—</div>
+          <div class="mobile-ind-bar"><div class="mobile-ind-fill" id="mobile-adx-fill" style="width:0%"></div></div></div>
       </div>
       <div class="signal-box" id="mobile-signal-box" style="margin-top:12px">Calculando señal...</div>
     </div>
@@ -287,252 +285,233 @@ td { padding: 4px 5px; }
       <div class="mobile-trades">
         <table>
           <thead><tr><th>LADO</th><th>ENTRADA</th><th>PnL</th><th>RES</th></tr></thead>
-          <tbody id="mobile-trades-body"><tr><td colspan="4">Sin operaciones</td></tr></tbody>
+          <tbody id="mobile-trades-body">
+            <tr><td colspan="4">Sin operaciones</td></tr>
+          </tbody>
         </table>
       </div>
-    </div>
-    <div class="mobile-card"><div class="mobile-card-title">HISTORIAL DIARIO</div>
-      <div id="mobile-snapshots"><div class="snap-row">Sin datos</div></div>
     </div>
   </div>
 </div>
 
 <script>
-const API_BASE = "https://matiasbarone.pythonanywhere.com/api/btc";
+const API_BASE = "https://matiasbarone.pythonanywhere.com";
 const REFRESH = 60000;
 let chartMode = "capital", equityChart = null;
 let allTrades = [], allSnapshots = [];
 
-function updateCooldown(remainingSec) {
-  const remaining = Math.max(0, Math.floor(remainingSec / 60));
-  const cdTexts = ["cooldown-text", "mobile-cool", "desk-pos-cool"];
-  cdTexts.forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.textContent = remaining > 0 ? `${remaining} min` : "--";
-  });
-  const cdBadgeText = document.getElementById("cooldown-text");
-  if (cdBadgeText) cdBadgeText.textContent = remaining > 0 ? `CD: ${remaining} min` : "CD: --";
-  const cdDot = document.querySelector(".cooldown-dot");
-  if (cdDot) cdDot.style.background = remaining > 0 ? "#ffab00" : "#4a5568";
-  return remaining > 0;
+function formatPnL(pnl) {
+  if (pnl === undefined || pnl === null) return "—";
+  const val = Number(pnl);
+  return `${val >= 0 ? "+" : ""}${val.toFixed(2)}%`;
 }
 
 async function fetchAll() {
   try {
     const [stR, trR, snR] = await Promise.all([
-      fetch(`${API_BASE}/state`),
-      fetch(`${API_BASE}/trades`),
-      fetch(`${API_BASE}/snapshots`)
+      fetch(`${API_BASE}/api/eth/state`),
+      fetch(`${API_BASE}/api/eth/trades`),
+      fetch(`${API_BASE}/api/eth/snapshots`)
     ]);
-    
     const state = await stR.json();
     allTrades = await trR.json();
     allSnapshots = await snR.json();
-    
-    if (state && state.capital !== undefined) {
-      document.getElementById("status-pill").className = "status-pill alive";
-      document.getElementById("status-text").textContent = "ACTIVO";
-    } else {
-      document.getElementById("status-pill").className = "status-pill dead";
-      document.getElementById("status-text").textContent = "DESCONECTADO";
-    }
 
     const cap = state.capital || 1000;
-    const initialCap = state.initial_capital || 1000;
-    const ret = (cap - initialCap) / initialCap * 100;
-    const wins = state.total_wins || 0;
-    const losses = state.total_losses || 0;
+    const initialCap = state.initial_capital || 1063.23;
+    const ret = ((cap - initialCap) / initialCap * 100) || 0;
+    const wins = state.total_wins || 0, losses = state.total_losses || 0;
     const tot = wins + losses;
     const wr = tot > 0 ? wins/tot*100 : 0;
     const dd = state.max_drawdown_pct || 0;
     const price = state.last_price || 0;
     const avwap = state.avwap_current;
     const ema21 = state.ema21_current;
+    const adx = state.current_adx;
     const coolUntil = state.cooldown_until || 0;
     const remainingSec = coolUntil - Date.now()/1000;
-    const inCooldown = updateCooldown(remainingSec);
+    const inCooldown = remainingSec > 0;
     
-    let signalText = "";
-    if (avwap && ema21 && price) {
-      if (price > avwap && price > ema21) {
-        signalText = `🔺 CONTEXTO ALCISTA (Precio > AVWAP y > EMA21)`;
-      } else if (price < avwap && price < ema21) {
-        signalText = `🔻 CONTEXTO BAJISTA (Precio < AVWAP y < EMA21)`;
-      } else {
-        signalText = `🟡 CONTEXTO NEUTRO | AVWAP: ${avwap?.toFixed(0)} | EMA21: ${ema21?.toFixed(0)}`;
-      }
-    } else {
-      signalText = `AVWAP: ${avwap?.toFixed(0) || "--"} | EMA21: ${ema21?.toFixed(0) || "--"}`;
-    }
+    // Update cooldown display
+    const remainingMin = Math.max(0, Math.floor(remainingSec / 60));
+    document.getElementById("cooldown-text").textContent = remainingMin > 0 ? `CD: ${remainingMin} min` : "CD: --";
+    document.getElementById("desk-pos-cool").textContent = remainingMin > 0 ? `${remainingMin} min` : "—";
+    document.getElementById("mobile-cool").textContent = remainingMin > 0 ? `Cooldown: ${remainingMin} min` : "Cooldown: —";
+    
+    const adxOk = adx && adx >= 20;
 
+    // HEADER
     if (price) document.getElementById("h-price").textContent = `$${price.toLocaleString()}`;
-    if (avwap) {
-      document.getElementById("h-avwap").textContent = avwap.toFixed(0);
-      document.getElementById("h-avwap").className = `h-ind-val ${price > avwap ? "green" : "red"}`;
-    }
-    if (ema21) {
-      document.getElementById("h-ema21").textContent = ema21.toFixed(0);
-      document.getElementById("h-ema21").className = `h-ind-val ${price > ema21 ? "green" : "red"}`;
-    }
+    if (avwap) document.getElementById("h-avwap").textContent = `$${avwap.toFixed(2)}`;
+    if (ema21) document.getElementById("h-ema21").textContent = `$${ema21.toFixed(2)}`;
+    if (adx) document.getElementById("h-adx").textContent = adx.toFixed(1);
     document.getElementById("h-capital").textContent = `$${(cap/1000).toFixed(1)}k`;
     document.getElementById("h-return").textContent = `${ret>=0?"+":""}${ret.toFixed(2)}%`;
-    document.getElementById("h-return").className = `h-ind-val ${ret>=0?"green":"red"}`;
     document.getElementById("h-wr").textContent = `${wr.toFixed(1)}%`;
-    document.getElementById("h-wr").className = `h-ind-val ${wr>=55?"green":wr>=45?"yellow":"red"}`;
     document.getElementById("h-dd").textContent = `${dd.toFixed(1)}%`;
 
-    if (avwap) {
-      document.getElementById("desk-r-avwap").textContent = avwap.toFixed(0);
-      document.getElementById("desk-r-avwap").className = `ind-val ${price > avwap ? "green" : "red"}`;
-      document.getElementById("mobile-avwap").textContent = avwap.toFixed(0);
-      document.getElementById("mobile-avwap").className = `mobile-ind-value ${price > avwap ? "green" : "red"}`;
+    // Desktop Indicators
+    if (avwap) document.getElementById("desk-avwap").textContent = `$${avwap.toFixed(2)}`;
+    if (ema21) document.getElementById("desk-ema21").textContent = `$${ema21.toFixed(2)}`;
+    if (adx) {
+      document.getElementById("desk-adx").textContent = adx.toFixed(1);
+      const bar = document.getElementById("desk-adx-bar");
+      bar.style.width = `${Math.min(100, adx * 2)}%`;
+      bar.style.background = adxOk ? (inCooldown ? "#ffab00" : "#00e676") : "#ff3d57";
+      document.getElementById("mobile-adx").textContent = adx.toFixed(1);
+      const mobileFill = document.getElementById("mobile-adx-fill");
+      mobileFill.style.width = `${Math.min(100, adx * 2)}%`;
+      mobileFill.style.background = adxOk ? (inCooldown ? "#ffab00" : "#00e676") : "#ff3d57";
     }
-    if (ema21) {
-      document.getElementById("desk-r-ema21").textContent = ema21.toFixed(0);
-      document.getElementById("desk-r-ema21").className = `ind-val ${price > ema21 ? "green" : "red"}`;
-      document.getElementById("mobile-ema21").textContent = ema21.toFixed(0);
-      document.getElementById("mobile-ema21").className = `mobile-ind-value ${price > ema21 ? "green" : "red"}`;
-    }
+    if (avwap) document.getElementById("mobile-avwap").textContent = `$${avwap.toFixed(2)}`;
+    if (ema21) document.getElementById("mobile-ema21").textContent = `$${ema21.toFixed(2)}`;
 
-    const deskSignal = document.getElementById("desk-signal-box");
-    const mobileSignal = document.getElementById("mobile-signal-box");
-    if (state.position) {
-      const side = state.position;
-      const pnl = side === "LONG" ? ((price - state.entry_price)/state.entry_price*100).toFixed(2) : ((state.entry_price - price)/state.entry_price*100).toFixed(2);
-      deskSignal.className = "signal-box ready";
-      deskSignal.textContent = `● ${side} ABIERTA | Beneficio: ${pnl}%`;
-      mobileSignal.className = "signal-box ready";
-      mobileSignal.textContent = `● ${side} ABIERTA | Beneficio: ${pnl}%`;
-    } else if (!inCooldown) {
-      deskSignal.className = "signal-box ready";
-      deskSignal.textContent = `● ${signalText}`;
-      mobileSignal.className = "signal-box ready";
-      mobileSignal.textContent = `● ${signalText}`;
-    } else {
-      deskSignal.className = "signal-box";
-      deskSignal.textContent = signalText;
-      mobileSignal.className = "signal-box";
-      mobileSignal.textContent = signalText;
-    }
-
+    // Mobile price
     if (price) document.getElementById("mobile-price").textContent = `$${price.toLocaleString()}`;
     document.getElementById("mobile-return").textContent = `${ret>=0?"+":""}${ret.toFixed(2)}%`;
-    document.getElementById("mobile-return").className = `mobile-met-value ${ret>=0?"green":"red"}`;
     document.getElementById("mobile-capital").textContent = `$${(cap/1000).toFixed(1)}k`;
     document.getElementById("mobile-wr").textContent = `${wr.toFixed(1)}%`;
     document.getElementById("mobile-dd").textContent = `${dd.toFixed(1)}%`;
     document.getElementById("mobile-wl").innerHTML = `<span class="green">${wins}</span>/<span class="red">${losses}</span>`;
-    const grossPnl = state.gross_pnl || 0;
-    document.getElementById("mobile-pnl").textContent = `${grossPnl>=0?"+":""}$${Math.abs(grossPnl).toFixed(0)}`;
-    document.getElementById("mobile-pnl").className = `mobile-met-value ${grossPnl>=0?"green":"red"}`;
+    document.getElementById("mobile-pnl").textContent = `${state.gross_pnl>=0?"+":""}$${Math.abs(state.gross_pnl||0).toFixed(0)}`;
 
+    // Desktop metrics
     document.getElementById("desk-m-return").textContent = `${ret>=0?"+":""}${ret.toFixed(2)}%`;
-    document.getElementById("desk-m-return").className = `met-val ${ret>=0?"green":"red"}`;
     document.getElementById("desk-m-wr").textContent = `${wr.toFixed(1)}%`;
     document.getElementById("desk-m-cap").textContent = `$${(cap/1000).toFixed(1)}k`;
-    document.getElementById("desk-m-pnl").textContent = `${grossPnl>=0?"+":""}$${Math.abs(grossPnl).toFixed(0)}`;
-    document.getElementById("desk-m-pnl").className = `met-val ${grossPnl>=0?"green":"red"}`;
+    document.getElementById("desk-m-pnl").textContent = `${state.gross_pnl>=0?"+":""}$${Math.abs(state.gross_pnl||0).toFixed(0)}`;
     document.getElementById("desk-m-dd").textContent = `${dd.toFixed(1)}%`;
     document.getElementById("desk-m-wl").innerHTML = `<span class="green">${wins}</span>/<span class="red">${losses}</span>`;
 
+    // SIGNAL BOX
+    const deskSignal = document.getElementById("desk-signal-box");
+    const mobileSignal = document.getElementById("mobile-signal-box");
     if (state.position) {
       const side = state.position;
+      const entry = state.entry_price || 0;
+      const msg = `● ${side} ABIERTA @ $${entry.toLocaleString()}`;
+      deskSignal.className = "signal-box ready";
+      deskSignal.textContent = msg;
+      mobileSignal.className = "signal-box ready";
+      mobileSignal.textContent = msg;
+    } else if (adxOk && !inCooldown) {
+      const msg = `● ADX ${adx?.toFixed(1)} ≥ 20 — LISTO PARA SEÑAL`;
+      deskSignal.className = "signal-box ready";
+      deskSignal.textContent = msg;
+      mobileSignal.className = "signal-box ready";
+      mobileSignal.textContent = msg;
+    } else if (adxOk && inCooldown) {
+      const msg = `◐ ADX ${adx?.toFixed(1)} ≥ 20 — COOLDOWN ${remainingMin}min`;
+      deskSignal.className = "signal-box almost";
+      deskSignal.textContent = msg;
+      mobileSignal.className = "signal-box almost";
+      mobileSignal.textContent = msg;
+    } else {
+      const msg = `ADX ${adx?.toFixed(1) || "--"} (min 20)`;
+      deskSignal.className = "signal-box";
+      deskSignal.textContent = msg;
+      mobileSignal.className = "signal-box";
+      mobileSignal.textContent = msg;
+    }
+
+    // POSICIÓN ACTIVA
+    if (state.position && state.entry_price) {
+      const side = state.position;
+      const entry = state.entry_price;
+      const lev = 10, tpPct = 1.2, slPct = 0.35;
+      let tp, sl;
+      if (side === "LONG") {
+        tp = entry * (1 + tpPct/lev/100);
+        sl = entry * (1 - slPct/lev/100);
+      } else {
+        tp = entry * (1 - tpPct/lev/100);
+        sl = entry * (1 + slPct/lev/100);
+      }
+      const profitPct = side === "LONG" ? (price - entry)/entry*lev*100 : (entry - price)/entry*lev*100;
+      const dur = state.entry_time ? Math.floor((Date.now()/1000 - state.entry_time)/60) : 0;
+      const contracts = state.position_size_contracts || 0;
+      
+      // Desktop
       document.getElementById("desk-pos-side").textContent = side;
       document.getElementById("desk-pos-side").className = `pos-side ${side.toLowerCase()}`;
-      document.getElementById("desk-pos-entry").textContent = `$${(state.entry_price||0).toLocaleString()}`;
-      const tp = side === "LONG" ? state.entry_price * (1 + 1.2/10/100) : state.entry_price * (1 - 1.2/10/100);
-      const sl = side === "LONG" ? state.entry_price * (1 - 0.35/10/100) : state.entry_price * (1 + 0.35/10/100);
+      document.getElementById("desk-pos-entry").textContent = `$${entry.toLocaleString()}`;
       document.getElementById("desk-pos-tp").textContent = `$${tp.toLocaleString()}`;
       document.getElementById("desk-pos-sl").textContent = `$${sl.toLocaleString()}`;
-      document.getElementById("desk-pos-avwap").textContent = state.entry_ema_fast ? state.entry_ema_fast.toFixed(0) : "—";
-      document.getElementById("desk-pos-ema21").textContent = state.entry_ema_slow ? state.entry_ema_slow.toFixed(0) : "—";
-      const dur = state.entry_time ? Math.floor((Date.now()/1000 - state.entry_time)/60) : 0;
       document.getElementById("desk-pos-dur").textContent = `${dur}m`;
-      let pnl = 0;
-      if (side === "LONG") pnl = (price - state.entry_price)/state.entry_price*10*100;
-      else pnl = (state.entry_price - price)/state.entry_price*10*100;
-      document.getElementById("desk-pos-pnl").textContent = `${pnl>=0?"+":""}${pnl.toFixed(2)}%`;
-      document.getElementById("desk-pos-pnl").className = `pos-item-val ${pnl>=0?"green":"red"}`;
+      document.getElementById("desk-pos-sz").textContent = contracts;
+      document.getElementById("desk-pos-pnl").textContent = `${profitPct>=0?"+":""}${profitPct.toFixed(2)}%`;
+      document.getElementById("desk-pos-pnl").className = `pos-item-val ${profitPct>=0?"green":"red"}`;
       
+      // Mobile
       const mobileSide = document.getElementById("mobile-pos-side");
       mobileSide.textContent = side;
       mobileSide.className = `mobile-pos-side ${side.toLowerCase()}`;
-      document.getElementById("mobile-pos-entry").textContent = `$${(state.entry_price||0).toLocaleString()}`;
+      document.getElementById("mobile-pos-entry").textContent = `$${entry.toLocaleString()}`;
       document.getElementById("mobile-pos-tp").textContent = `$${tp.toLocaleString()}`;
       document.getElementById("mobile-pos-sl").textContent = `$${sl.toLocaleString()}`;
-      document.getElementById("mobile-pos-avwap").textContent = state.entry_ema_fast ? state.entry_ema_fast.toFixed(0) : "—";
-      document.getElementById("mobile-pos-ema21").textContent = state.entry_ema_slow ? state.entry_ema_slow.toFixed(0) : "—";
       document.getElementById("mobile-pos-dur").textContent = `${dur}m`;
-      document.getElementById("mobile-pos-pnl").textContent = `${pnl>=0?"+":""}${pnl.toFixed(2)}%`;
-      document.getElementById("mobile-pos-pnl").className = `mobile-pos-value ${pnl>=0?"green":"red"}`;
+      document.getElementById("mobile-pos-sz").textContent = contracts;
+      document.getElementById("mobile-pos-pnl").textContent = `${profitPct>=0?"+":""}${profitPct.toFixed(2)}%`;
+      document.getElementById("mobile-pos-pnl").className = `mobile-pos-value ${profitPct>=0?"green":"red"}`;
     } else {
       document.getElementById("desk-pos-side").textContent = "FLAT";
       document.getElementById("desk-pos-side").className = "pos-side muted";
-      ["desk-pos-entry","desk-pos-tp","desk-pos-sl","desk-pos-dur","desk-pos-avwap","desk-pos-ema21"].forEach(id => document.getElementById(id).textContent = "—");
+      ["desk-pos-entry","desk-pos-tp","desk-pos-sl","desk-pos-dur","desk-pos-sz"].forEach(id => document.getElementById(id).textContent = "—");
       document.getElementById("desk-pos-pnl").textContent = "—";
       document.getElementById("mobile-pos-side").textContent = "FLAT";
       document.getElementById("mobile-pos-side").className = "mobile-pos-side flat";
-      ["mobile-pos-entry","mobile-pos-tp","mobile-pos-sl","mobile-pos-dur","mobile-pos-avwap","mobile-pos-ema21"].forEach(id => document.getElementById(id).textContent = "—");
+      ["mobile-pos-entry","mobile-pos-tp","mobile-pos-sl","mobile-pos-dur","mobile-pos-sz"].forEach(id => document.getElementById(id).textContent = "—");
       document.getElementById("mobile-pos-pnl").textContent = "—";
     }
 
+    // TABLA DE TRADES (Desktop)
     const deskTbody = document.getElementById("desk-trades-tbody");
     if (!allTrades || allTrades.length === 0) {
-      deskTbody.innerHTML = `<tr><td colspan="7">Sin operaciones</td></tr>`;
+      deskTbody.innerHTML = `<tr><td colspan="6">Sin operaciones</td></tr>`;
     } else {
-      deskTbody.innerHTML = [...allTrades].reverse().slice(0,20).map(t => `
-        <tr>
-          <td><span class="pill pill-${t.side?.toLowerCase()}">${t.side}</span></td>
+      deskTbody.innerHTML = [...allTrades].reverse().slice(0,20).map(t => {
+        const pnlNeto = t.pnl_pct_neto !== undefined ? t.pnl_pct_neto : (t.pnl_pct_bruto || 0);
+        return `<tr>
+          <td><span class="pill pill-${t.side}">${t.side}</span></td>
           <td>$${(t.entry_price||0).toLocaleString()}</td>
           <td>$${(t.exit_price||0).toLocaleString()}</td>
           <td>${t.duration_min||0}m</td>
-          <td class="${t.pnl_pct>=0?"green":"red"}">${t.pnl_pct>=0?"+":""}${(t.pnl_pct||0).toFixed(2)}%</td>
-          <td>${t.entry_ema_fast?.toFixed(0)||"—"}</td>
-          <td><span class="pill pill-${(t.reason||"").toLowerCase()}">${t.reason||"—"}</span></td>
-        </tr>
-      `).join("");
+          <td class="${pnlNeto>=0?"green":"red"}">${pnlNeto>=0?"+":""}${pnlNeto.toFixed(2)}%</td>
+          <td><span class="pill pill-${t.reason}">${t.reason?.substring(0,12)||"—"}</span></td>
+        </tr>`;
+      }).join("");
     }
-    
+
+    // TABLA DE TRADES (Mobile)
     const mobileTbody = document.getElementById("mobile-trades-body");
     if (!allTrades || allTrades.length === 0) {
       mobileTbody.innerHTML = `<tr><td colspan="4">Sin operaciones</td></tr>`;
     } else {
-      mobileTbody.innerHTML = [...allTrades].reverse().slice(0,10).map(t => `
-        <tr>
-          <td><span class="pill pill-${t.side?.toLowerCase()}">${t.side}</span></td>
+      mobileTbody.innerHTML = [...allTrades].reverse().slice(0,10).map(t => {
+        const pnlNeto = t.pnl_pct_neto !== undefined ? t.pnl_pct_neto : (t.pnl_pct_bruto || 0);
+        return `<tr>
+          <td><span class="pill pill-${t.side}">${t.side}</span></td>
           <td>$${(t.entry_price||0).toLocaleString()}</td>
-          <td class="${t.pnl_pct>=0?"green":"red"}">${t.pnl_pct>=0?"+":""}${(t.pnl_pct||0).toFixed(2)}%</td>
-          <td><span class="pill pill-${(t.reason||"").toLowerCase()}">${t.reason||"—"}</span></td>
-        </tr>
+          <td class="${pnlNeto>=0?"green":"red"}">${pnlNeto>=0?"+":""}${pnlNeto.toFixed(2)}%</td>
+          <td><span class="pill pill-${t.reason}">${t.reason?.substring(0,8)||"—"}</span></td>
+        </tr>`;
+      }).join("");
+    }
+
+    // SNAPSHOTS
+    const snapDiv = document.getElementById("desk-snap-rows");
+    if (!allSnapshots || allSnapshots.length === 0) {
+      snapDiv.innerHTML = '<div class="snap-row"><span class="snap-key">Sin datos</span></div>';
+    } else {
+      snapDiv.innerHTML = [...allSnapshots].reverse().slice(0,5).map(s => `
+        <div class="snap-row">
+          <span class="snap-key">${s.date} · ${s.total_trades||0}t · WR ${(s.win_rate||0).toFixed(0)}%</span>
+          <span class="snap-val ${s.return_total>=0?"green":"red"}">${s.return_total>=0?"+":""}${(s.return_total||0).toFixed(2)}%</span>
+        </div>
       `).join("");
     }
 
-    const snapDivDesktop = document.getElementById("desk-snap-rows");
-    const snapDivMobile = document.getElementById("mobile-snapshots");
-    
-    if (!allSnapshots || allSnapshots.length === 0) {
-      if (snapDivDesktop) snapDivDesktop.innerHTML = '<div class="snap-row">Sin datos</div>';
-      if (snapDivMobile) snapDivMobile.innerHTML = '<div class="snap-row">Sin datos</div>';
-    } else {
-      const snapshotsReversed = [...allSnapshots].reverse().slice(0,10);
-      if (snapDivDesktop) {
-        snapDivDesktop.innerHTML = snapshotsReversed.map(s => `
-          <div class="snap-row">
-            <span class="snap-key">${s.date} · ${s.total_trades||0}t · WR ${(s.win_rate||0).toFixed(0)}%</span>
-            <span class="snap-val ${s.return_total>=0?"green":"red"}">${s.return_total>=0?"+":""}${(s.return_total||0).toFixed(2)}%</span>
-          </div>
-        `).join("");
-      }
-      if (snapDivMobile) {
-        snapDivMobile.innerHTML = snapshotsReversed.map(s => `
-          <div class="snap-row">
-            <span class="snap-key">${s.date} · ${s.total_trades||0}t</span>
-            <span class="snap-val ${s.return_total>=0?"green":"red"}">${s.return_total>=0?"+":""}${(s.return_total||0).toFixed(2)}%</span>
-          </div>
-        `).join("");
-      }
-    }
-
+    // EQUITY CHART
     if (allSnapshots && allSnapshots.length > 0) {
       const labels = allSnapshots.map(s => s.date.slice(5));
       const isCap = chartMode === "capital";
@@ -547,9 +526,10 @@ async function fetchAll() {
     }
     
     document.getElementById("h-update").textContent = new Date().toLocaleTimeString("es-AR");
-    
+    document.getElementById("status-pill").className = "status-pill alive";
+    document.getElementById("status-text").textContent = "ACTIVO";
   } catch(e) {
-    console.error("Error fetching data:", e);
+    console.error(e);
     document.getElementById("status-pill").className = "status-pill dead";
     document.getElementById("status-text").textContent = "DESCONECTADO";
   }
@@ -564,12 +544,12 @@ function setChartMode(mode) {
 
 function downloadCSV() {
   if (!allTrades || allTrades.length === 0) return;
-  const headers = ["timestamp","side","entry_price","exit_price","duration_min","entry_avwap","pnl_pct","reason"];
+  const headers = ["timestamp","side","entry_price","exit_price","duration_min","pnl_pct_neto","pnl_usd","reason","capital_after"];
   const rows = allTrades.map(t => headers.map(h => `"${t[h] !== undefined ? t[h] : ""}"`).join(","));
   const blob = new Blob([[headers.join(","), ...rows].join("\n")], { type: "text/csv" });
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
-  a.download = `trades_avwap_${new Date().toISOString().split("T")[0]}.csv`;
+  a.download = `eth_trades_${new Date().toISOString().split("T")[0]}.csv`;
   a.click();
 }
 
@@ -581,7 +561,7 @@ function initTradingView() {
   if (document.getElementById("tv-chart-container")) {
     new TradingView.widget({
       container_id: "tv-chart-container",
-      symbol: "OKX:BTCUSD.P",
+      symbol: "OKX:ETHUSD.P",
       interval: "5",
       timezone: "America/Argentina/Buenos_Aires",
       theme: "dark",
@@ -593,7 +573,9 @@ function initTradingView() {
       save_image: false,
       backgroundColor: "#080a0c",
       gridColor: "#1e2530",
-      studies: [{ id: "EMA", inputs: { length: 21, color: "#ffab00" } }],
+      studies: [
+        { id: "ADX", inputs: { adxSmoothing: 14 } },
+      ],
       overrides: {
         "mainSeriesProperties.candleStyle.upColor": "#00e676",
         "mainSeriesProperties.candleStyle.downColor": "#ff3d57",
