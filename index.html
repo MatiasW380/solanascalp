@@ -203,11 +203,11 @@ td { padding: 4px 5px; }
       <div class="sec" style="flex:1"><div class="sec-label">ESTRATEGIA AVWAP</div>
         <div class="p-row"><span class="p-key">TP / SL</span><span class="p-val green">1.2% / ATR×2</span></div>
         <div class="p-row"><span class="p-key">Breakeven</span><span class="p-val muted">0.5%</span></div>
-        <div class="p-row"><span class="p-key">Trailing</span><span class="p-val muted">2.0% / 0.5%</span></div>
+        <div class="p-row"><span class="p-key">Trailing</span><span class="p-val muted">3.0% / 1.2%</span></div>
         <div class="p-row"><span class="p-key">Leverage</span><span class="p-val">10x</span></div>
         <div class="p-row"><span class="p-key">Risk per trade</span><span class="p-val muted">1.0%</span></div>
-        <div class="p-row"><span class="p-key">Vol. threshold</span><span class="p-val muted">0.9 ratio</span></div>
-        <div class="p-row"><span class="p-key">ADX mínimo</span><span class="p-val">&gt; 20</span></div>
+        <div class="p-row"><span class="p-key">Vol. threshold</span><span class="p-val muted">1.0 ratio</span></div>
+        <div class="p-row"><span class="p-key">ADX mínimo</span><span class="p-val">&gt; 18</span></div>
         <div class="p-row"><span class="p-key">Timeout</span><span class="p-val muted">48h (pérdidas)</span></div>
       </div>
     </div>
@@ -227,7 +227,7 @@ td { padding: 4px 5px; }
         <div class="ind-block"><div class="ind-row"><span class="ind-name">AVWAP</span><span class="ind-val muted" id="desk-avwap">—</span></div></div>
         <div class="ind-block"><div class="ind-row"><span class="ind-name">EMA · 21</span><span class="ind-val muted" id="desk-ema21">—</span></div></div>
         <div class="ind-block"><div class="ind-row"><span class="ind-name">ADX · 14</span><span class="ind-val muted" id="desk-adx">—</span></div>
-          <div class="bar-track"><div class="bar-fill" id="desk-adx-bar" style="width:0%"></div><div class="bar-mark" style="left:20%"><span class="bar-mark-lbl">20↑</span></div></div></div>
+          <div class="bar-track"><div class="bar-fill" id="desk-adx-bar" style="width:0%"></div><div class="bar-mark" style="left:18%"><span class="bar-mark-lbl">18↑</span></div></div></div>
         <div class="signal-box" id="desk-signal-box">Calculando señal...</div>
       </div>
       <div class="sec trades-sec"><div class="trades-header">ÚLTIMAS OPERACIONES<button class="csv-btn" onclick="downloadCSV()">↓ CSV</button></div>
@@ -309,13 +309,19 @@ function formatPnL(pnl) {
 async function fetchAll() {
   try {
     const [stR, trR, snR] = await Promise.all([
-      fetch(`${API_BASE}/api/eth/state`),
-      fetch(`${API_BASE}/api/eth/trades`),
-      fetch(`${API_BASE}/api/eth/snapshots`)
+      fetch(`${API_BASE}/api/btc/state`),
+      fetch(`${API_BASE}/api/btc/trades`),
+      fetch(`${API_BASE}/api/btc/snapshots`)
     ]);
     const state = await stR.json();
     allTrades = await trR.json();
     allSnapshots = await snR.json();
+
+    // Si trades es un objeto con error o no es array, mostramos mensaje
+    if (!Array.isArray(allTrades)) {
+      console.warn("Trades no es un array:", allTrades);
+      allTrades = [];
+    }
 
     const cap = state.capital || 1000;
     const initialCap = state.initial_capital || 1063.23;
@@ -338,7 +344,7 @@ async function fetchAll() {
     document.getElementById("desk-pos-cool").textContent = remainingMin > 0 ? `${remainingMin} min` : "—";
     document.getElementById("mobile-cool").textContent = remainingMin > 0 ? `Cooldown: ${remainingMin} min` : "Cooldown: —";
     
-    const adxOk = adx && adx >= 20;
+    const adxOk = adx && adx >= 18;
 
     // HEADER
     if (price) document.getElementById("h-price").textContent = `$${price.toLocaleString()}`;
@@ -395,19 +401,19 @@ async function fetchAll() {
       mobileSignal.className = "signal-box ready";
       mobileSignal.textContent = msg;
     } else if (adxOk && !inCooldown) {
-      const msg = `● ADX ${adx?.toFixed(1)} ≥ 20 — LISTO PARA SEÑAL`;
+      const msg = `● ADX ${adx?.toFixed(1)} ≥ 18 — LISTO PARA SEÑAL`;
       deskSignal.className = "signal-box ready";
       deskSignal.textContent = msg;
       mobileSignal.className = "signal-box ready";
       mobileSignal.textContent = msg;
     } else if (adxOk && inCooldown) {
-      const msg = `◐ ADX ${adx?.toFixed(1)} ≥ 20 — COOLDOWN ${remainingMin}min`;
+      const msg = `◐ ADX ${adx?.toFixed(1)} ≥ 18 — COOLDOWN ${remainingMin}min`;
       deskSignal.className = "signal-box almost";
       deskSignal.textContent = msg;
       mobileSignal.className = "signal-box almost";
       mobileSignal.textContent = msg;
     } else {
-      const msg = `ADX ${adx?.toFixed(1) || "--"} (min 20)`;
+      const msg = `ADX ${adx?.toFixed(1) || "--"} (min 18)`;
       deskSignal.className = "signal-box";
       deskSignal.textContent = msg;
       mobileSignal.className = "signal-box";
