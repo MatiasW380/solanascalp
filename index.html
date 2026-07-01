@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
-<title>BTC MOMENTUM 15m · Estrategia con Señal Inversa</title>
+<title>BTC MOMENTUM 15m · Señal en Vivo</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Barlow+Condensed:wght@300;400;600;700;900&display=swap" rel="stylesheet"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
@@ -122,10 +122,6 @@ html, body { width: 100%; min-height: 100vh; background: var(--bg); color: var(-
 .bar-fill { height: 100%; border-radius: 3px; transition: width .8s ease, background .4s ease; }
 .bar-mark { position: absolute; top: -3px; width: 1px; height: 11px; background: var(--muted); }
 .bar-mark-lbl { position: absolute; top: 10px; font-size: 7px; color: var(--muted); transform: translateX(-50%); white-space: nowrap; }
-.signal-box { padding: 6px 8px; border-radius: 4px; border: 1px solid var(--bd); font-size: 9px; line-height: 1.5; background: var(--bg3); color: var(--muted2); }
-.signal-box.ready { border-color: var(--green); color: var(--green); background: rgba(0,230,118,.05); }
-.signal-box.almost { border-color: var(--yellow); color: var(--yellow); background: rgba(255,171,0,.05); }
-.signal-box.inverse { border-color: var(--blue); color: var(--blue); background: rgba(79,195,247,.05); }
 .trades-sec { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
 .trades-header { display: flex; justify-content: space-between; align-items: center; font-size: 8px; letter-spacing: 0.14em; color: var(--muted2); font-weight: 700; margin-bottom: 5px; }
 .csv-btn { font-size: 7px; padding: 2px 7px; border-radius: 8px; border: 1px solid var(--bd); background: transparent; color: var(--muted2); cursor: pointer; }
@@ -154,6 +150,102 @@ td { padding: 4px 5px; }
 .orange { color: var(--orange); }
 .muted { color: var(--muted2); }
 @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+/* ---- NUEVO BLOQUE DE SEÑAL EN VIVO ---- */
+.signal-live {
+  background: var(--bg2);
+  border: 1px solid var(--bd);
+  border-radius: 12px;
+  padding: 12px;
+  margin-top: 8px;
+}
+.signal-live-title {
+  font-size: 8px;
+  letter-spacing: 0.14em;
+  color: var(--muted2);
+  font-weight: 700;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.signal-live-status {
+  font-size: 10px;
+  font-weight: 700;
+}
+.signal-live-status.ready { color: var(--green); }
+.signal-live-status.waiting { color: var(--yellow); }
+.signal-live-status.blocked { color: var(--red); }
+
+.signal-condition {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(30,37,48,0.3);
+}
+.signal-condition:last-child { border-bottom: none; }
+
+.signal-condition .label {
+  font-size: 9px;
+  color: var(--muted2);
+  min-width: 100px;
+  flex-shrink: 0;
+}
+.signal-condition .value {
+  font-size: 10px;
+  font-weight: 700;
+  min-width: 80px;
+  flex-shrink: 0;
+}
+.signal-condition .bar-wrap {
+  flex: 1;
+  height: 8px;
+  background: var(--bg3);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+.signal-condition .bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.8s ease, background 0.4s ease;
+}
+.signal-condition .bar-threshold {
+  position: absolute;
+  top: -2px;
+  width: 2px;
+  height: 12px;
+  background: var(--muted2);
+  opacity: 0.6;
+}
+.signal-condition .check {
+  font-size: 14px;
+  min-width: 24px;
+  text-align: center;
+}
+.signal-condition .check.ok { color: var(--green); }
+.signal-condition .check.fail { color: var(--red); }
+
+.signal-progress {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--bd);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.signal-progress .pct {
+  font-size: 20px;
+  font-weight: 900;
+}
+.signal-progress .pct.ready { color: var(--green); }
+.signal-progress .pct.waiting { color: var(--yellow); }
+.signal-progress .pct.blocked { color: var(--red); }
+
+/* ---- FIN NUEVO BLOQUE ---- */
+
 @media (min-width: 900px) { .mobile-layout { display: none; } .desktop-layout { display: grid; } .root { height: 100vh; overflow: hidden; } }
 @media (max-width: 899px) { .desktop-layout { display: none; } .mobile-layout { display: flex; } }
 </style>
@@ -199,6 +291,83 @@ td { padding: 4px 5px; }
         </div>
         <div style="margin-top:6px;font-size:10px;color:var(--muted2)">Cooldown: <span id="desk-pos-cool" style="color:var(--yellow)">—</span></div>
       </div>
+
+      <!-- NUEVO BLOQUE: SEÑAL EN VIVO -->
+      <div class="sec" style="flex:1">
+        <div class="signal-live" id="signalLive">
+          <div class="signal-live-title">
+            <span>📡 SEÑAL EN VIVO</span>
+            <span class="signal-live-status" id="signalStatus">ESPERANDO</span>
+          </div>
+
+          <!-- LONG -->
+          <div style="margin-bottom:8px;font-size:8px;color:var(--green);letter-spacing:0.1em;font-weight:700">▲ LONG</div>
+          <div class="signal-condition" id="cond-long-trend">
+            <span class="label">EMA10 > EMA35</span>
+            <span class="value" id="val-long-trend">—</span>
+            <div class="bar-wrap"><div class="bar-fill" id="bar-long-trend" style="width:0%"></div></div>
+            <span class="check" id="chk-long-trend">⬜</span>
+          </div>
+          <div class="signal-condition" id="cond-long-macdline">
+            <span class="label">MACD Line > 0</span>
+            <span class="value" id="val-long-macdline">—</span>
+            <div class="bar-wrap"><div class="bar-fill" id="bar-long-macdline" style="width:0%"></div></div>
+            <span class="check" id="chk-long-macdline">⬜</span>
+          </div>
+          <div class="signal-condition" id="cond-long-macdhist">
+            <span class="label">MACD Hist ↑</span>
+            <span class="value" id="val-long-macdhist">—</span>
+            <div class="bar-wrap"><div class="bar-fill" id="bar-long-macdhist" style="width:0%"></div></div>
+            <span class="check" id="chk-long-macdhist">⬜</span>
+          </div>
+          <div class="signal-condition" id="cond-long-rsi">
+            <span class="label">RSI < 78</span>
+            <span class="value" id="val-long-rsi">—</span>
+            <div class="bar-wrap"><div class="bar-fill" id="bar-long-rsi" style="width:0%"></div>
+              <div class="bar-threshold" style="left:78%"></div>
+            </div>
+            <span class="check" id="chk-long-rsi">⬜</span>
+          </div>
+
+          <div style="margin:8px 0;border-bottom:1px solid var(--bd);"></div>
+
+          <!-- SHORT -->
+          <div style="margin-bottom:8px;font-size:8px;color:var(--red);letter-spacing:0.1em;font-weight:700">▼ SHORT</div>
+          <div class="signal-condition" id="cond-short-trend">
+            <span class="label">EMA10 < EMA35</span>
+            <span class="value" id="val-short-trend">—</span>
+            <div class="bar-wrap"><div class="bar-fill" id="bar-short-trend" style="width:0%"></div></div>
+            <span class="check" id="chk-short-trend">⬜</span>
+          </div>
+          <div class="signal-condition" id="cond-short-macdline">
+            <span class="label">MACD Line < 0</span>
+            <span class="value" id="val-short-macdline">—</span>
+            <div class="bar-wrap"><div class="bar-fill" id="bar-short-macdline" style="width:0%"></div></div>
+            <span class="check" id="chk-short-macdline">⬜</span>
+          </div>
+          <div class="signal-condition" id="cond-short-macdhist">
+            <span class="label">MACD Hist ↓</span>
+            <span class="value" id="val-short-macdhist">—</span>
+            <div class="bar-wrap"><div class="bar-fill" id="bar-short-macdhist" style="width:0%"></div></div>
+            <span class="check" id="chk-short-macdhist">⬜</span>
+          </div>
+          <div class="signal-condition" id="cond-short-rsi">
+            <span class="label">RSI > 20</span>
+            <span class="value" id="val-short-rsi">—</span>
+            <div class="bar-wrap"><div class="bar-fill" id="bar-short-rsi" style="width:0%"></div>
+              <div class="bar-threshold" style="left:20%"></div>
+            </div>
+            <span class="check" id="chk-short-rsi">⬜</span>
+          </div>
+
+          <div class="signal-progress">
+            <span style="font-size:8px;color:var(--muted2)">CONDICIONES CUMPLIDAS</span>
+            <span class="pct" id="signalProgress">0%</span>
+          </div>
+        </div>
+      </div>
+      <!-- FIN NUEVO BLOQUE -->
+
       <div class="sec"><div class="sec-label">RENDIMIENTO</div>
         <div class="metrics-grid">
           <div class="met"><div class="met-val" id="desk-m-return">—</div><div class="met-lbl">RETURN</div></div>
@@ -266,7 +435,7 @@ td { padding: 4px 5px; }
     </div>
   </div>
 
-  <!-- MOBILE LAYOUT -->
+  <!-- MOBILE LAYOUT (con señal en vivo también) -->
   <div class="mobile-layout">
     <div class="mobile-card"><div class="mobile-card-title">POSICIÓN ACTIVA</div>
       <div class="mobile-pos-side flat" id="mobile-pos-side">FLAT</div>
@@ -280,6 +449,30 @@ td { padding: 4px 5px; }
       </div>
       <div class="mobile-cool" id="mobile-cool">Cooldown: —</div>
     </div>
+
+    <!-- NUEVO BLOQUE MÓVIL: SEÑAL EN VIVO -->
+    <div class="mobile-card">
+      <div class="mobile-card-title">📡 SEÑAL EN VIVO</div>
+      <div id="mobileSignalStatus" style="text-align:center;font-size:12px;font-weight:700;margin-bottom:10px;color:var(--yellow)">ESPERANDO</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:9px;">
+        <div style="background:var(--bg3);border-radius:8px;padding:8px;border-left:3px solid var(--green)">
+          <div style="color:var(--muted2);font-size:7px">▲ LONG</div>
+          <div id="mobile-long-count" style="font-weight:700">0/4</div>
+          <div style="height:4px;background:var(--bg);border-radius:2px;margin-top:4px;overflow:hidden">
+            <div id="mobile-long-bar" style="height:100%;width:0%;background:var(--green);border-radius:2px;transition:width 0.5s"></div>
+          </div>
+        </div>
+        <div style="background:var(--bg3);border-radius:8px;padding:8px;border-left:3px solid var(--red)">
+          <div style="color:var(--muted2);font-size:7px">▼ SHORT</div>
+          <div id="mobile-short-count" style="font-weight:700">0/4</div>
+          <div style="height:4px;background:var(--bg);border-radius:2px;margin-top:4px;overflow:hidden">
+            <div id="mobile-short-bar" style="height:100%;width:0%;background:var(--red);border-radius:2px;transition:width 0.5s"></div>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:8px;font-size:8px;color:var(--muted2);text-align:center" id="mobileSignalDetail">Condiciones: esperando datos...</div>
+    </div>
+
     <div class="mobile-card"><div class="mobile-card-title">MERCADO</div>
       <div style="text-align:center;margin-bottom:12px"><span style="font-size:10px;color:var(--muted2)">BTC/USD</span><div style="font-size:28px;font-weight:700" id="mobile-price">—</div></div>
       <div class="mobile-indicators">
@@ -320,11 +513,117 @@ const REFRESH = 60000;
 let chartMode = "capital", equityChart = null;
 let allTrades = [], allSnapshots = [];
 
-function formatPnL(pnl) {
-  if (pnl === undefined || pnl === null) return "—";
-  const val = Number(pnl);
-  return `${val >= 0 ? "+" : ""}${val.toFixed(2)}%`;
+// --- FUNCIÓN PARA ACTUALIZAR SEÑAL EN VIVO ---
+function updateSignalLive(state) {
+  const ema10 = state.ema10;
+  const ema35 = state.ema35;
+  const macdLine = state.macd_line;
+  const macdHist = state.macd_hist;
+  const rsi = state.rsi;
+  const position = state.position;
+
+  // --- LONG ---
+  const longTrend = ema10 !== undefined && ema35 !== undefined && ema10 > ema35;
+  const longMacdLine = macdLine !== undefined && macdLine > 0;
+  const longMacdHist = macdHist !== undefined && macdHist !== null && macdHist > 0; // asumimos que hist > 0 = pendiente positiva (aproximado)
+  const longRsi = rsi !== undefined && rsi < 78;
+
+  // --- SHORT ---
+  const shortTrend = ema10 !== undefined && ema35 !== undefined && ema10 < ema35;
+  const shortMacdLine = macdLine !== undefined && macdLine < 0;
+  const shortMacdHist = macdHist !== undefined && macdHist !== null && macdHist < 0;
+  const shortRsi = rsi !== undefined && rsi > 20;
+
+  // --- Actualizar elementos LONG ---
+  updateCondition('long-trend', longTrend, `${ema10?.toFixed(2) || '—'} > ${ema35?.toFixed(2) || '—'}`);
+  updateCondition('long-macdline', longMacdLine, `${macdLine?.toFixed(4) || '—'} > 0`);
+  updateCondition('long-macdhist', longMacdHist, `${macdHist?.toFixed(4) || '—'} ↑`);
+  updateCondition('long-rsi', longRsi, `${rsi?.toFixed(1) || '—'} < 78`);
+
+  // --- Actualizar elementos SHORT ---
+  updateCondition('short-trend', shortTrend, `${ema10?.toFixed(2) || '—'} < ${ema35?.toFixed(2) || '—'}`);
+  updateCondition('short-macdline', shortMacdLine, `${macdLine?.toFixed(4) || '—'} < 0`);
+  updateCondition('short-macdhist', shortMacdHist, `${macdHist?.toFixed(4) || '—'} ↓`);
+  updateCondition('short-rsi', shortRsi, `${rsi?.toFixed(1) || '—'} > 20`);
+
+  // --- Progreso LONG ---
+  const longCount = [longTrend, longMacdLine, longMacdHist, longRsi].filter(Boolean).length;
+  const shortCount = [shortTrend, shortMacdLine, shortMacdHist, shortRsi].filter(Boolean).length;
+
+  // --- Actualizar texto de progreso ---
+  const totalConditions = 8;
+  const conditionsMet = longCount + shortCount;
+  const pct = Math.round((conditionsMet / totalConditions) * 100);
+
+  // --- Calcular si hay señal lista ---
+  const longReady = longCount === 4;
+  const shortReady = shortCount === 4;
+  const inCooldown = state.cooldown_until > Date.now()/1000;
+
+  let statusText = 'ESPERANDO';
+  let statusClass = 'waiting';
+  let signalMsg = '';
+
+  if (position) {
+    statusText = `🟢 ${position} ACTIVA`;
+    statusClass = 'ready';
+    signalMsg = `Posición ${position} abierta @ $${state.entry_price?.toLocaleString() || '—'}`;
+  } else if (inCooldown) {
+    const remaining = Math.floor((state.cooldown_until - Date.now()/1000) / 60);
+    statusText = `⏳ COOLDOWN ${remaining}min`;
+    statusClass = 'waiting';
+    signalMsg = `Esperando ${remaining} minutos para nueva señal`;
+  } else if (longReady) {
+    statusText = '🟢 SEÑAL LONG LISTA';
+    statusClass = 'ready';
+    signalMsg = 'Todas las condiciones LONG cumplidas ✅';
+  } else if (shortReady) {
+    statusText = '🔴 SEÑAL SHORT LISTA';
+    statusClass = 'ready';
+    signalMsg = 'Todas las condiciones SHORT cumplidas ✅';
+  } else if (pct >= 75) {
+    statusText = `🟡 CASI LISTO (${pct}%)`;
+    statusClass = 'waiting';
+    signalMsg = `Faltan ${totalConditions - conditionsMet} condiciones`;
+  } else {
+    statusText = `🔴 ${pct}% CUMPLIDO`;
+    statusClass = 'blocked';
+    signalMsg = `Faltan ${totalConditions - conditionsMet} condiciones`;
+  }
+
+  // Desktop
+  document.getElementById('signalStatus').textContent = statusText;
+  document.getElementById('signalStatus').className = `signal-live-status ${statusClass}`;
+  document.getElementById('signalProgress').textContent = `${pct}%`;
+  document.getElementById('signalProgress').className = `pct ${statusClass}`;
+
+  // Mobile
+  document.getElementById('mobileSignalStatus').textContent = statusText;
+  document.getElementById('mobileSignalStatus').style.color = statusClass === 'ready' ? 'var(--green)' : statusClass === 'waiting' ? 'var(--yellow)' : 'var(--red)';
+  document.getElementById('mobile-long-count').textContent = `${longCount}/4`;
+  document.getElementById('mobile-long-bar').style.width = `${(longCount/4)*100}%`;
+  document.getElementById('mobile-short-count').textContent = `${shortCount}/4`;
+  document.getElementById('mobile-short-bar').style.width = `${(shortCount/4)*100}%`;
+  document.getElementById('mobileSignalDetail').textContent = signalMsg;
 }
+
+function updateCondition(id, isMet, valueText) {
+  const check = document.getElementById(`chk-${id}`);
+  const bar = document.getElementById(`bar-${id}`);
+  const val = document.getElementById(`val-${id}`);
+
+  if (check) {
+    check.textContent = isMet ? '✅' : '❌';
+    check.className = `check ${isMet ? 'ok' : 'fail'}`;
+  }
+  if (val) val.textContent = valueText;
+  if (bar) {
+    bar.style.width = isMet ? '100%' : '0%';
+    bar.style.background = isMet ? 'var(--green)' : 'var(--red)';
+  }
+}
+
+// --- FIN FUNCIÓN SEÑAL EN VIVO ---
 
 async function fetchAll() {
   try {
@@ -342,9 +641,14 @@ async function fetchAll() {
       allTrades = [];
     }
 
+    // --- CORRECCIÓN DEL RETURN ---
     const cap = state.capital || 1000;
     const initialCap = state.initial_capital || 1000;
-    const ret = ((cap - initialCap) / initialCap * 100) || 0;
+    // Si el capital es 0.5k (500) y el inicial es 1000, el return debería ser -50%
+    // Pero si no hay operaciones, el return debería ser 0%
+    const hasTrades = allTrades.length > 0;
+    const ret = hasTrades ? ((cap - initialCap) / initialCap * 100) : 0;
+
     const wins = state.total_wins || 0, losses = state.total_losses || 0;
     const tot = wins + losses;
     const wr = tot > 0 ? wins/tot*100 : 0;
@@ -431,7 +735,7 @@ async function fetchAll() {
     document.getElementById("desk-m-dd").textContent = `${dd.toFixed(1)}%`;
     document.getElementById("desk-m-wl").innerHTML = `<span class="green">${wins}</span>/<span class="red">${losses}</span>`;
 
-    // SIGNAL BOX
+    // SIGNAL BOX (resumen)
     const deskSignal = document.getElementById("desk-signal-box");
     const mobileSignal = document.getElementById("mobile-signal-box");
     
@@ -450,7 +754,6 @@ async function fetchAll() {
       mobileSignal.className = "signal-box almost";
       mobileSignal.textContent = msg;
     } else {
-      // Verificar condiciones para señal
       let conditions = [];
       let ready = true;
       if (ema10 !== undefined && ema35 !== undefined) {
@@ -492,6 +795,9 @@ async function fetchAll() {
       mobileSignal.className = ready ? "signal-box ready" : "signal-box";
       mobileSignal.textContent = msg;
     }
+
+    // --- LLAMAR A LA FUNCIÓN DE SEÑAL EN VIVO ---
+    updateSignalLive(state);
 
     // POSICIÓN ACTIVA
     if (position && entryPrice) {
@@ -646,8 +952,8 @@ function initTradingView() {
   if (document.getElementById("tv-chart-container")) {
     new TradingView.widget({
       container_id: "tv-chart-container",
-      symbol: "OKX:BTCUSD.P",        // ← Cambiado a BTC
-      interval: "15",                // ← Cambiado a 15m
+      symbol: "OKX:BTCUSD.P",
+      interval: "15",
       timezone: "America/Argentina/Buenos_Aires",
       theme: "dark",
       style: "1",
