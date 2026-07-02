@@ -2,14 +2,14 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>BTC MOMENTUM · SEÑAL EN VIVO</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BTC MOMENTUM · DASHBOARD</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Barlow+Condensed:wght@400;600;700;900&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
   <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
   <style>
-    /* ===== RESET Y VARIABLES ===== */
+    /* ===== RESET ===== */
     * { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
       --bg: #080a0c;
@@ -22,11 +22,9 @@
       --green: #00e676;
       --red: #ff3d57;
       --yellow: #ffab00;
-      --blue: #4fc3f7;
       --orange: #ff9100;
       --mono: 'Space Mono', monospace;
       --cond: 'Barlow Condensed', sans-serif;
-      --radius: 12px;
     }
     html, body {
       width: 100%;
@@ -35,31 +33,31 @@
       background: var(--bg);
       color: var(--text);
       font-family: var(--mono);
-      font-size: 13px;
+      font-size: 16px;
     }
     .root {
       display: grid;
-      grid-template-rows: 56px 1fr;
+      grid-template-rows: 70px 1fr;
       height: 100vh;
       width: 100%;
       gap: 4px;
       padding: 6px;
       background: var(--bg);
     }
-    /* ===== HEADER ===== */
+    /* ===== HEADER - FUENTES GRANDES ===== */
     .header {
       display: grid;
       grid-template-columns: auto 1fr auto;
       align-items: center;
-      padding: 4px 14px;
+      padding: 8px 20px;
       background: var(--bg2);
-      border-radius: var(--radius);
+      border-radius: 14px;
       border: 1px solid var(--bd);
-      gap: 10px;
+      gap: 16px;
     }
     .logo {
       font-family: var(--cond);
-      font-size: 18px;
+      font-size: 28px;
       font-weight: 900;
       color: var(--orange);
       white-space: nowrap;
@@ -68,21 +66,21 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 14px;
+      gap: 24px;
       flex-wrap: wrap;
     }
     .h-price {
       display: flex;
       align-items: baseline;
-      gap: 4px;
+      gap: 8px;
     }
     .h-price-label {
-      font-size: 10px;
+      font-size: 14px;
       color: var(--muted2);
       font-weight: 700;
     }
     .h-price-val {
-      font-size: 22px;
+      font-size: 34px;
       font-weight: 700;
       color: var(--text);
     }
@@ -92,113 +90,117 @@
       align-items: center;
     }
     .h-stat-label {
-      font-size: 7px;
+      font-size: 10px;
       color: var(--muted2);
       text-transform: uppercase;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.08em;
     }
     .h-stat-val {
-      font-size: 14px;
+      font-size: 22px;
       font-weight: 700;
     }
     .h-right {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 12px;
     }
     .status-pill {
       display: flex;
       align-items: center;
-      gap: 5px;
-      padding: 3px 10px;
+      gap: 8px;
+      padding: 6px 16px;
       border-radius: 30px;
       border: 1px solid var(--bd);
-      font-size: 9px;
+      font-size: 13px;
       font-weight: 700;
       background: var(--bg3);
     }
     .status-dot {
-      width: 7px;
-      height: 7px;
+      width: 10px;
+      height: 10px;
       border-radius: 50%;
       background: var(--muted);
     }
     .status-pill.alive { border-color: var(--green); color: var(--green); background: rgba(0,230,118,0.08); }
     .status-pill.alive .status-dot { background: var(--green); animation: blink 2s infinite; }
-    .status-pill.dead { border-color: var(--red); color: var(--red); background: rgba(255,61,87,0.12); }
-    .h-update { font-size: 8px; color: var(--muted); }
+    .h-update { font-size: 11px; color: var(--muted); }
     @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
 
-    /* ===== CUERPO PRINCIPAL - NUEVA DISTRIBUCIÓN ===== */
+    /* ===== CUERPO - GRÁFICO PEQUEÑO, FUENTES GRANDES ===== */
     .body-grid {
       display: grid;
-      grid-template-columns: 340px 1fr 260px;
+      grid-template-columns: 1fr 320px;
       gap: 4px;
       height: 100%;
       min-height: 0;
     }
     .col {
       background: var(--bg2);
-      border-radius: var(--radius);
+      border-radius: 14px;
       border: 1px solid var(--bd);
-      padding: 10px;
+      padding: 14px;
       display: flex;
       flex-direction: column;
       overflow: hidden;
     }
-    .col-center {
-      padding: 0;
-      border: 1px solid var(--bd);
-    }
-    .block-title {
-      font-size: 9px;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--muted2);
-      font-weight: 700;
-      margin-bottom: 4px;
-      flex-shrink: 0;
-    }
-
-    /* ===== COLUMNA IZQUIERDA - REDISEÑADA ===== */
-    .left-col {
+    .col-right {
       display: flex;
       flex-direction: column;
       gap: 4px;
+      padding: 10px;
     }
-
-    /* Posición - más compacta */
-    .pos-block {
+    .block-title {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted2);
+      font-weight: 700;
+      margin-bottom: 6px;
       flex-shrink: 0;
     }
+
+    /* ===== GRÁFICO - MÁS PEQUEÑO ===== */
+    .tv-wrap {
+      flex: 1;
+      height: 100%;
+      min-height: 0;
+    }
+    #tv-chart-container {
+      height: 100%;
+      width: 100%;
+      min-height: 150px;
+    }
+
+    /* ===== COLUMNA DERECHA - FUENTES GRANDES ===== */
+    /* Posición */
     .pos-side {
       font-family: var(--cond);
-      font-size: 26px;
+      font-size: 38px;
       font-weight: 900;
       color: var(--muted2);
-      margin-bottom: 2px;
+      margin-bottom: 4px;
     }
     .pos-side.long { color: var(--green); }
     .pos-side.short { color: var(--red); }
     .pos-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 3px;
+      gap: 4px;
     }
     .pos-item {
       background: var(--bg3);
       border: 1px solid var(--bd);
-      border-radius: 5px;
-      padding: 2px 6px;
+      border-radius: 8px;
+      padding: 6px 10px;
     }
     .pos-item-label {
-      font-size: 7px;
+      font-size: 10px;
       color: var(--muted2);
       text-transform: uppercase;
-      letter-spacing: 0.04em;
+      letter-spacing: 0.06em;
     }
     .pos-item-val {
-      font-size: 14px;
+      font-size: 20px;
       font-weight: 700;
       line-height: 1.2;
     }
@@ -206,53 +208,53 @@
     .pos-item-val.red { color: var(--red); }
     .pos-item-val.muted { color: var(--muted2); }
     .cool-row {
-      margin-top: 2px;
-      font-size: 11px;
+      margin-top: 4px;
+      font-size: 15px;
       color: var(--yellow);
       font-weight: 700;
     }
 
-    /* ===== SEÑAL - VERSIÓN FINAL Y FUNCIONAL ===== */
+    /* ===== SEÑAL - FUENTES GRANDES Y LEGIBLES ===== */
     .signal-block {
       flex: 1;
       display: flex;
       flex-direction: column;
       min-height: 0;
+      margin-top: 2px;
     }
     .signal-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-size: 12px;
+      font-size: 16px;
       font-weight: 700;
-      padding-bottom: 3px;
+      padding-bottom: 4px;
       border-bottom: 1px solid var(--bd);
       flex-shrink: 0;
     }
     .signal-status {
-      padding: 1px 10px;
-      border-radius: 16px;
-      font-size: 11px;
+      padding: 2px 14px;
+      border-radius: 20px;
+      font-size: 16px;
       font-weight: 700;
     }
     .signal-status.ready { background: rgba(0,230,118,0.15); color: var(--green); }
     .signal-status.waiting { background: rgba(255,171,0,0.15); color: var(--yellow); }
     .signal-status.blocked { background: rgba(255,61,87,0.15); color: var(--red); }
 
-    /* Grid de condiciones - OCUPA TODO EL ESPACIO */
     .signal-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 4px;
+      gap: 6px;
       flex: 1;
       min-height: 0;
-      padding-top: 3px;
+      padding-top: 4px;
     }
     .signal-side {
       background: var(--bg3);
-      border-radius: 6px;
-      padding: 6px 8px;
-      border-left: 3px solid var(--muted2);
+      border-radius: 10px;
+      padding: 10px 12px;
+      border-left: 4px solid var(--muted2);
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -260,41 +262,41 @@
     .signal-side.long { border-left-color: var(--green); }
     .signal-side.short { border-left-color: var(--red); }
     .signal-side-title {
-      font-size: 12px;
+      font-size: 16px;
       font-weight: 900;
-      margin-bottom: 2px;
+      margin-bottom: 4px;
     }
     .signal-side.long .signal-side-title { color: var(--green); }
     .signal-side.short .signal-side-title { color: var(--red); }
 
-    /* Cada condición - CON ESPACIO JUSTO Y SIN CORTES */
+    /* Cada condición - FUENTES GRANDES */
     .cond-row {
       display: grid;
-      grid-template-columns: 1fr 36px 20px;
+      grid-template-columns: 1fr 44px 28px;
       align-items: center;
-      gap: 3px;
-      padding: 2px 0;
-      font-size: 11px;
-      border-bottom: 1px solid rgba(30,37,48,0.08);
-      min-height: 22px;
+      gap: 4px;
+      padding: 4px 0;
+      font-size: 15px;
+      border-bottom: 1px solid rgba(30,37,48,0.1);
+      min-height: 30px;
     }
     .cond-row:last-child { border-bottom: none; }
     .cond-label {
       color: var(--muted2);
-      font-size: 9px;
+      font-size: 13px;
       font-weight: 600;
       white-space: nowrap;
     }
     .cond-value {
-      font-size: 10px;
+      font-size: 14px;
       font-weight: 700;
       text-align: right;
       white-space: nowrap;
     }
     .cond-check {
-      font-size: 14px;
+      font-size: 20px;
       text-align: center;
-      width: 20px;
+      width: 28px;
       flex-shrink: 0;
     }
     .cond-check.ok { color: var(--green); }
@@ -304,72 +306,47 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding-top: 3px;
+      padding-top: 6px;
       border-top: 1px solid var(--bd);
       margin-top: auto;
       flex-shrink: 0;
     }
     .signal-progress-label {
-      font-size: 10px;
+      font-size: 14px;
       font-weight: 700;
       color: var(--muted2);
     }
     .signal-progress-pct {
-      font-size: 20px;
+      font-size: 32px;
       font-weight: 900;
     }
     .signal-progress-pct.ready { color: var(--green); }
     .signal-progress-pct.waiting { color: var(--yellow); }
     .signal-progress-pct.blocked { color: var(--red); }
 
-    /* ===== CHART ===== */
-    .tv-wrap {
-      flex: 1;
-      height: 100%;
-      min-height: 0;
-      position: relative;
-    }
-    #tv-chart-container {
-      height: 100%;
-      width: 100%;
-      min-height: 200px;
-    }
-    .mobile-chart-placeholder {
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100%;
-      color: var(--muted2);
-      font-size: 13px;
-      text-align: center;
-      padding: 16px;
-    }
-    .mobile-chart-placeholder span { font-size: 36px; margin-bottom: 6px; }
-
-    /* ===== COLUMNA DERECHA ===== */
+    /* ===== MÉTRICAS - FUENTES GRANDES ===== */
     .metrics-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 3px;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 4px;
       margin-bottom: 6px;
       flex-shrink: 0;
     }
     .metric-card {
       background: var(--bg3);
       border: 1px solid var(--bd);
-      border-radius: 6px;
-      padding: 4px 2px;
+      border-radius: 8px;
+      padding: 8px 4px;
       text-align: center;
     }
     .metric-label {
-      font-size: 7px;
+      font-size: 9px;
       text-transform: uppercase;
       color: var(--muted2);
-      letter-spacing: 0.04em;
+      letter-spacing: 0.06em;
     }
     .metric-value {
-      font-size: 16px;
+      font-size: 22px;
       font-weight: 700;
       line-height: 1.2;
     }
@@ -377,103 +354,81 @@
     .metric-value.red { color: var(--red); }
     .metric-value.yellow { color: var(--yellow); }
 
+    /* ===== TRADES ===== */
     .trades-wrap {
       flex: 1;
       overflow-y: auto;
       min-height: 0;
-      font-size: 9px;
+      font-size: 12px;
     }
     .trades-wrap table { width: 100%; border-collapse: collapse; }
     .trades-wrap th {
       text-align: left;
-      font-size: 7px;
+      font-size: 9px;
       text-transform: uppercase;
       color: var(--muted2);
-      padding: 2px 2px;
+      padding: 4px 4px;
       border-bottom: 1px solid var(--bd);
     }
     .trades-wrap td {
-      padding: 2px 2px;
+      padding: 4px 4px;
       border-bottom: 1px solid rgba(30,37,48,0.3);
     }
     .pill {
       display: inline-block;
-      padding: 1px 5px;
-      border-radius: 8px;
-      font-size: 7px;
+      padding: 2px 10px;
+      border-radius: 12px;
+      font-size: 10px;
       font-weight: 700;
     }
-    .pill-LONG, .pill-buy { background: rgba(0,230,118,0.15); color: var(--green); }
-    .pill-SHORT, .pill-sell { background: rgba(255,61,87,0.15); color: var(--red); }
+    .pill-LONG { background: rgba(0,230,118,0.15); color: var(--green); }
+    .pill-SHORT { background: rgba(255,61,87,0.15); color: var(--red); }
     .csv-btn {
-      font-size: 7px;
-      padding: 1px 6px;
-      border-radius: 8px;
+      font-size: 10px;
+      padding: 2px 10px;
+      border-radius: 10px;
       border: 1px solid var(--bd);
       background: transparent;
       color: var(--muted2);
       cursor: pointer;
     }
-    .csv-btn:hover { border-color: var(--blue); color: var(--blue); }
+    .csv-btn:hover { border-color: var(--orange); color: var(--orange); }
 
     /* ===== RESPONSIVE ===== */
-    @media (max-width: 1024px) {
+    @media (max-width: 1100px) {
       .body-grid { grid-template-columns: 1fr; grid-template-rows: auto 1fr auto; }
       .col { max-height: none; }
-      .col-center { min-height: 280px; }
+      .col-right { padding: 10px; }
     }
     @media (max-width: 600px) {
       .root { padding: 4px; gap: 3px; grid-template-rows: auto 1fr; }
-      .header { grid-template-columns: 1fr; padding: 4px 8px; gap: 3px; }
-      .logo { font-size: 15px; text-align: center; }
-      .h-center { gap: 6px; flex-wrap: wrap; justify-content: center; }
-      .h-price-val { font-size: 17px; }
-      .h-price-label { font-size: 8px; }
-      .h-stat { min-width: 30px; }
-      .h-stat-label { font-size: 6px; }
-      .h-stat-val { font-size: 11px; }
-      .h-right { justify-content: center; }
-      .status-pill { font-size: 7px; padding: 2px 6px; }
-      .h-update { font-size: 7px; }
+      .header { grid-template-columns: 1fr; padding: 6px 10px; gap: 4px; }
+      .logo { font-size: 20px; text-align: center; }
+      .h-center { gap: 8px; flex-wrap: wrap; justify-content: center; }
+      .h-price-val { font-size: 22px; }
+      .h-stat-val { font-size: 16px; }
+      .h-stat-label { font-size: 8px; }
+      .h-price-label { font-size: 11px; }
+      .status-pill { font-size: 10px; padding: 4px 10px; }
       .body-grid { grid-template-columns: 1fr; grid-template-rows: auto 200px auto; gap: 3px; }
-      .col { padding: 6px; }
-      .col-center { min-height: 200px; }
-      .pos-side { font-size: 22px; }
-      .pos-grid { gap: 2px; }
-      .pos-item { padding: 2px 4px; }
-      .pos-item-val { font-size: 12px; }
-      .signal-grid { grid-template-columns: 1fr 1fr; gap: 3px; }
-      .signal-side { padding: 4px 5px; }
-      .cond-row { grid-template-columns: 1fr 24px 14px; font-size: 9px; padding: 1px 0; min-height: 18px; }
-      .cond-label { font-size: 7px; }
-      .cond-value { font-size: 8px; }
-      .cond-check { font-size: 11px; width: 14px; }
-      .signal-side-title { font-size: 10px; }
-      .signal-progress-pct { font-size: 17px; }
-      .signal-status { font-size: 9px; padding: 1px 6px; }
-      .metrics-grid { gap: 2px; }
-      .metric-card { padding: 3px; }
-      .metric-value { font-size: 14px; }
-      .metric-label { font-size: 6px; }
-      .trades-wrap { font-size: 7px; }
-      .trades-wrap th { font-size: 6px; padding: 1px 1px; }
-      .trades-wrap td { padding: 1px 1px; }
-      .pill { font-size: 6px; padding: 1px 3px; }
-      .mobile-chart-placeholder { font-size: 11px; }
-      .mobile-chart-placeholder span { font-size: 28px; }
+      .col { padding: 8px; }
+      .col-right { padding: 8px; }
+      .pos-side { font-size: 28px; }
+      .pos-item-val { font-size: 16px; }
+      .signal-grid { grid-template-columns: 1fr 1fr; gap: 4px; }
+      .cond-row { grid-template-columns: 1fr 30px 20px; font-size: 12px; padding: 2px 0; min-height: 24px; }
+      .cond-label { font-size: 10px; }
+      .cond-value { font-size: 11px; }
+      .cond-check { font-size: 16px; width: 20px; }
+      .signal-side-title { font-size: 13px; }
+      .signal-progress-pct { font-size: 24px; }
+      .signal-status { font-size: 13px; padding: 2px 10px; }
+      .metrics-grid { grid-template-columns: 1fr 1fr 1fr; gap: 3px; }
+      .metric-value { font-size: 18px; }
     }
-    @media (max-width: 400px) {
-      .body-grid { grid-template-rows: auto 160px auto; }
-      .col-center { min-height: 160px; }
-      .cond-row { grid-template-columns: 1fr 18px 12px; font-size: 8px; }
-      .cond-label { font-size: 6px; }
-      .cond-value { font-size: 7px; }
-      .cond-check { font-size: 9px; width: 12px; }
-      .pos-item-val { font-size: 10px; }
-    }
-    .trades-wrap::-webkit-scrollbar { width: 2px; }
+    .trades-wrap::-webkit-scrollbar { width: 3px; }
     .trades-wrap::-webkit-scrollbar-track { background: var(--bg); }
-    .trades-wrap::-webkit-scrollbar-thumb { background: var(--bd); border-radius: 2px; }
+    .trades-wrap::-webkit-scrollbar-thumb { background: var(--bd); border-radius: 3px; }
   </style>
 </head>
 <body>
@@ -500,10 +455,18 @@
   <!-- BODY -->
   <div class="body-grid">
 
-    <!-- COLUMNA IZQUIERDA - AMPLIADA A 340px -->
-    <div class="col left-col">
+    <!-- COLUMNA IZQUIERDA: GRÁFICO (más pequeño) -->
+    <div class="col">
+      <div class="tv-wrap">
+        <div id="tv-chart-container"></div>
+      </div>
+    </div>
+
+    <!-- COLUMNA DERECHA: TODA LA INFORMACIÓN (fuentes grandes) -->
+    <div class="col col-right">
+
       <!-- Posición -->
-      <div class="pos-block">
+      <div style="flex-shrink:0;">
         <div class="block-title">POSICIÓN</div>
         <div class="pos-side muted" id="pos-side">FLAT</div>
         <div class="pos-grid">
@@ -517,14 +480,13 @@
         <div class="cool-row" id="cool-row">Cooldown: —</div>
       </div>
 
-      <!-- Señal - DEFINITIVA CON ESPACIO SUFICIENTE -->
+      <!-- Señal en Vivo - FUENTES GRANDES -->
       <div class="signal-block">
         <div class="signal-header">
-          <span>📡 SEÑAL EN VIVO</span>
+          <span>📡 SEÑAL</span>
           <span class="signal-status waiting" id="signalStatus">ESPERANDO</span>
         </div>
         <div class="signal-grid">
-          <!-- LONG -->
           <div class="signal-side long">
             <div class="signal-side-title">▲ LONG</div>
             <div class="cond-row"><span class="cond-label">EMA10>EMA35</span><span class="cond-value" id="val-long-trend">—</span><span class="cond-check" id="chk-long-trend">⬜</span></div>
@@ -532,7 +494,6 @@
             <div class="cond-row"><span class="cond-label">MACD Hist↑</span><span class="cond-value" id="val-long-macdhist">—</span><span class="cond-check" id="chk-long-macdhist">⬜</span></div>
             <div class="cond-row"><span class="cond-label">RSI &lt;78</span><span class="cond-value" id="val-long-rsi">—</span><span class="cond-check" id="chk-long-rsi">⬜</span></div>
           </div>
-          <!-- SHORT -->
           <div class="signal-side short">
             <div class="signal-side-title">▼ SHORT</div>
             <div class="cond-row"><span class="cond-label">EMA10&lt;EMA35</span><span class="cond-value" id="val-short-trend">—</span><span class="cond-check" id="chk-short-trend">⬜</span></div>
@@ -546,47 +507,37 @@
           <span class="signal-progress-pct waiting" id="signalProgress">0%</span>
         </div>
       </div>
-    </div>
 
-    <!-- CENTRO: CHART -->
-    <div class="col col-center">
-      <div class="tv-wrap">
-        <div id="tv-chart-container" class="desktop-only"></div>
-        <div class="mobile-chart-placeholder">
-          <span>📱</span>
-          <div>Gráfico disponible en versión de escritorio</div>
-          <div style="font-size:11px;color:var(--muted);margin-top:4px;">BTC/USD · 15m</div>
+      <!-- Métricas -->
+      <div style="flex-shrink:0;">
+        <div class="block-title">RENDIMIENTO</div>
+        <div class="metrics-grid">
+          <div class="metric-card"><div class="metric-label">CAPITAL</div><div class="metric-value" id="m-cap">—</div></div>
+          <div class="metric-card"><div class="metric-label">RETURN</div><div class="metric-value" id="m-return">—</div></div>
+          <div class="metric-card"><div class="metric-label">WIN RATE</div><div class="metric-value" id="m-wr">—</div></div>
+          <div class="metric-card"><div class="metric-label">MAX DD</div><div class="metric-value red" id="m-dd">—</div></div>
+          <div class="metric-card"><div class="metric-label">W / L</div><div class="metric-value" id="m-wl">—</div></div>
+          <div class="metric-card"><div class="metric-label">GROSS PnL</div><div class="metric-value" id="m-pnl">—</div></div>
         </div>
       </div>
-    </div>
 
-    <!-- DERECHA -->
-    <div class="col">
-      <div class="block-title">RENDIMIENTO</div>
-      <div class="metrics-grid">
-        <div class="metric-card"><div class="metric-label">CAPITAL</div><div class="metric-value" id="m-cap">—</div></div>
-        <div class="metric-card"><div class="metric-label">RETURN</div><div class="metric-value" id="m-return">—</div></div>
-        <div class="metric-card"><div class="metric-label">WIN RATE</div><div class="metric-value" id="m-wr">—</div></div>
-        <div class="metric-card"><div class="metric-label">MAX DD</div><div class="metric-value red" id="m-dd">—</div></div>
-        <div class="metric-card"><div class="metric-label">W / L</div><div class="metric-value" id="m-wl">—</div></div>
-        <div class="metric-card"><div class="metric-label">GROSS PnL</div><div class="metric-value" id="m-pnl">—</div></div>
-      </div>
-      <div style="flex:1;display:flex;flex-direction:column;min-height:0;margin-top:3px;">
+      <!-- Trades -->
+      <div style="flex:1;display:flex;flex-direction:column;min-height:0;margin-top:2px;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;flex-shrink:0;">
-          <span class="block-title" style="margin-bottom:0;">ÚLTIMAS OPERACIONES</span>
+          <span class="block-title" style="margin-bottom:0;">OPERACIONES</span>
           <button class="csv-btn" onclick="downloadCSV()">↓ CSV</button>
         </div>
         <div class="trades-wrap">
           <table>
-            <thead><tr><th>LADO</th><th>ENTRADA</th><th>SALIDA</th><th>PnL</th><th>RES</th></tr></thead>
+            <thead><tr><th>LADO</th><th>ENTRADA</th><th>SALIDA</th><th>PnL</th></tr></thead>
             <tbody id="trades-body">
-              <tr><td colspan="5" style="text-align:center;color:var(--muted2);padding:10px 0;">Sin operaciones</td></tr>
+              <tr><td colspan="4" style="text-align:center;color:var(--muted2);padding:12px 0;">Sin operaciones</td></tr>
             </tbody>
           </table>
         </div>
       </div>
-    </div>
 
+    </div>
   </div>
 </div>
 
@@ -677,7 +628,7 @@ async function fetchAll() {
     const remainingMin = Math.max(0, Math.floor(remainingSec / 60));
     document.getElementById('cool-row').textContent = remainingMin > 0 ? `⏳ Cooldown: ${remainingMin} min` : 'Cooldown: —';
 
-    // SEÑAL EN VIVO
+    // SEÑAL
     const longTrend = ema10 !== undefined && ema35 !== undefined && ema10 > ema35;
     const longMacdLine = macdLine !== undefined && macdLine > 0;
     const longMacdHist = macdHist !== undefined && macdHist !== null && macdHist > 0;
@@ -709,14 +660,12 @@ async function fetchAll() {
     else if (pct >= 75) { statusText = `🟡 ${pct}%`; statusClass = 'waiting'; }
     else { statusText = `🔴 ${pct}%`; statusClass = 'blocked'; }
 
-    const statusEl = document.getElementById('signalStatus');
-    statusEl.textContent = statusText;
-    statusEl.className = `signal-status ${statusClass}`;
-    const progEl = document.getElementById('signalProgress');
-    progEl.textContent = `${pct}%`;
-    progEl.className = `signal-progress-pct ${statusClass}`;
+    document.getElementById('signalStatus').textContent = statusText;
+    document.getElementById('signalStatus').className = `signal-status ${statusClass}`;
+    document.getElementById('signalProgress').textContent = `${pct}%`;
+    document.getElementById('signalProgress').className = `signal-progress-pct ${statusClass}`;
 
-    // MÉTRICAS DERECHA
+    // MÉTRICAS
     document.getElementById('m-cap').textContent = `$${(cap/1000).toFixed(1)}k`;
     document.getElementById('m-return').textContent = `${ret>=0?'+':''}${ret.toFixed(1)}%`;
     document.getElementById('m-return').className = `metric-value ${ret>=0?'green':'red'}`;
@@ -729,7 +678,7 @@ async function fetchAll() {
     // TRADES
     const tbody = document.getElementById('trades-body');
     if (!allTrades || allTrades.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--muted2);padding:10px 0;">Sin operaciones</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;color:var(--muted2);padding:12px 0;">Sin operaciones</td></tr>`;
     } else {
       tbody.innerHTML = [...allTrades].reverse().slice(0,15).map(t => {
         const pnl = t.pnl_pct_neto || t.pnl_pct_bruto || 0;
@@ -738,7 +687,6 @@ async function fetchAll() {
           <td>$${(t.entry_price||0).toLocaleString()}</td>
           <td>$${(t.exit_price||0).toLocaleString()}</td>
           <td class="${pnl>=0?'green':'red'}">${pnl>=0?'+':''}${pnl.toFixed(1)}%</td>
-          <td><span style="font-size:7px;color:var(--muted2)">${t.reason?.substring(0,10)||'—'}</span></td>
         </tr>`;
       }).join('');
     }
@@ -762,10 +710,7 @@ function downloadCSV() {
 }
 
 function initTradingView() {
-  if (typeof TradingView === 'undefined') {
-    setTimeout(initTradingView, 300);
-    return;
-  }
+  if (typeof TradingView === 'undefined') { setTimeout(initTradingView, 300); return; }
   const container = document.getElementById('tv-chart-container');
   if (container) {
     new TradingView.widget({
