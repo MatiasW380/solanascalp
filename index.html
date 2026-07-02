@@ -1,754 +1,896 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BTC MOMENTUM · DASHBOARD</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Barlow+Condensed:wght@400;600;700;900&display=swap" rel="stylesheet">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-  <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
-  <style>
-    /* ===== RESET ===== */
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --bg: #080a0c;
-      --bg2: #0e1115;
-      --bg3: #141820;
-      --bd: #1e2530;
-      --text: #e2e8f0;
-      --muted: #4a5568;
-      --muted2: #64748b;
-      --green: #00e676;
-      --red: #ff3d57;
-      --yellow: #ffab00;
-      --orange: #ff9100;
-      --mono: 'Space Mono', monospace;
-      --cond: 'Barlow Condensed', sans-serif;
-    }
-    html, body {
-      width: 100%;
-      height: 100vh;
-      overflow: hidden;
-      background: var(--bg);
-      color: var(--text);
-      font-family: var(--mono);
-      font-size: 16px;
-    }
-    .root {
-      display: grid;
-      grid-template-rows: 70px 1fr;
-      height: 100vh;
-      width: 100%;
-      gap: 4px;
-      padding: 6px;
-      background: var(--bg);
-    }
-    /* ===== HEADER - FUENTES GRANDES ===== */
-    .header {
-      display: grid;
-      grid-template-columns: auto 1fr auto;
-      align-items: center;
-      padding: 8px 20px;
-      background: var(--bg2);
-      border-radius: 14px;
-      border: 1px solid var(--bd);
-      gap: 16px;
-    }
-    .logo {
-      font-family: var(--cond);
-      font-size: 28px;
-      font-weight: 900;
-      color: var(--orange);
-      white-space: nowrap;
-    }
-    .h-center {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 24px;
-      flex-wrap: wrap;
-    }
-    .h-price {
-      display: flex;
-      align-items: baseline;
-      gap: 8px;
-    }
-    .h-price-label {
-      font-size: 14px;
-      color: var(--muted2);
-      font-weight: 700;
-    }
-    .h-price-val {
-      font-size: 34px;
-      font-weight: 700;
-      color: var(--text);
-    }
-    .h-stat {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    .h-stat-label {
-      font-size: 10px;
-      color: var(--muted2);
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-    }
-    .h-stat-val {
-      font-size: 22px;
-      font-weight: 700;
-    }
-    .h-right {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .status-pill {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 6px 16px;
-      border-radius: 30px;
-      border: 1px solid var(--bd);
-      font-size: 13px;
-      font-weight: 700;
-      background: var(--bg3);
-    }
-    .status-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: var(--muted);
-    }
-    .status-pill.alive { border-color: var(--green); color: var(--green); background: rgba(0,230,118,0.08); }
-    .status-pill.alive .status-dot { background: var(--green); animation: blink 2s infinite; }
-    .h-update { font-size: 11px; color: var(--muted); }
-    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BTC MOMENTUM · DASHBOARD</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Barlow+Condensed:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+    <style>
+        /* ===== RESET Y VARIABLES ===== */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        :root {
+            --bg: #080a0c;
+            --bg2: #0e1115;
+            --bg3: #141820;
+            --bd: #1e2530;
+            --text: #e2e8f0;
+            --muted: #4a5568;
+            --muted2: #64748b;
+            --green: #00e676;
+            --red: #ff3d57;
+            --yellow: #ffab00;
+            --orange: #ff9100;
+            --mono: 'Space Mono', monospace;
+            --cond: 'Barlow Condensed', sans-serif;
+        }
+        html,
+        body {
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--mono);
+            font-size: 16px;
+        }
+        .root {
+            display: grid;
+            grid-template-rows: 74px 1fr;
+            height: 100vh;
+            width: 100%;
+            gap: 5px;
+            padding: 8px;
+            background: var(--bg);
+        }
 
-    /* ===== CUERPO - GRÁFICO PEQUEÑO, FUENTES GRANDES ===== */
-    .body-grid {
-      display: grid;
-      grid-template-columns: 1fr 320px;
-      gap: 4px;
-      height: 100%;
-      min-height: 0;
-    }
-    .col {
-      background: var(--bg2);
-      border-radius: 14px;
-      border: 1px solid var(--bd);
-      padding: 14px;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
-    .col-right {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      padding: 10px;
-    }
-    .block-title {
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: var(--muted2);
-      font-weight: 700;
-      margin-bottom: 6px;
-      flex-shrink: 0;
-    }
+        /* ===== HEADER - FUENTES GRANDES ===== */
+        .header {
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            align-items: center;
+            padding: 8px 24px;
+            background: var(--bg2);
+            border-radius: 14px;
+            border: 1px solid var(--bd);
+            gap: 20px;
+        }
+        .logo {
+            font-family: var(--cond);
+            font-size: 30px;
+            font-weight: 900;
+            color: var(--orange);
+            white-space: nowrap;
+        }
+        .h-center {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 28px;
+            flex-wrap: wrap;
+        }
+        .h-price {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+        }
+        .h-price-label {
+            font-size: 14px;
+            color: var(--muted2);
+            font-weight: 700;
+        }
+        .h-price-val {
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--text);
+        }
+        .h-stat {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .h-stat-label {
+            font-size: 10px;
+            color: var(--muted2);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+        .h-stat-val {
+            font-size: 24px;
+            font-weight: 700;
+        }
+        .h-right {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .status-pill {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 18px;
+            border-radius: 30px;
+            border: 1px solid var(--bd);
+            font-size: 14px;
+            font-weight: 700;
+            background: var(--bg3);
+        }
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--muted);
+        }
+        .status-pill.alive {
+            border-color: var(--green);
+            color: var(--green);
+            background: rgba(0, 230, 118, 0.08);
+        }
+        .status-pill.alive .status-dot {
+            background: var(--green);
+            animation: blink 2s infinite;
+        }
+        .h-update {
+            font-size: 11px;
+            color: var(--muted);
+        }
+        @keyframes blink {
+            0%,
+            100% {
+                opacity: 1
+            }
+            50% {
+                opacity: .3
+            }
+        }
 
-    /* ===== GRÁFICO - MÁS PEQUEÑO ===== */
-    .tv-wrap {
-      flex: 1;
-      height: 100%;
-      min-height: 0;
-    }
-    #tv-chart-container {
-      height: 100%;
-      width: 100%;
-      min-height: 150px;
-    }
+        /* ===== CUERPO - TRES COLUMNAS SIMÉTRICAS ===== */
+        .body-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr 1fr;
+            gap: 5px;
+            height: 100%;
+            min-height: 0;
+        }
 
-    /* ===== COLUMNA DERECHA - FUENTES GRANDES ===== */
-    /* Posición */
-    .pos-side {
-      font-family: var(--cond);
-      font-size: 38px;
-      font-weight: 900;
-      color: var(--muted2);
-      margin-bottom: 4px;
-    }
-    .pos-side.long { color: var(--green); }
-    .pos-side.short { color: var(--red); }
-    .pos-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 4px;
-    }
-    .pos-item {
-      background: var(--bg3);
-      border: 1px solid var(--bd);
-      border-radius: 8px;
-      padding: 6px 10px;
-    }
-    .pos-item-label {
-      font-size: 10px;
-      color: var(--muted2);
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-    }
-    .pos-item-val {
-      font-size: 20px;
-      font-weight: 700;
-      line-height: 1.2;
-    }
-    .pos-item-val.green { color: var(--green); }
-    .pos-item-val.red { color: var(--red); }
-    .pos-item-val.muted { color: var(--muted2); }
-    .cool-row {
-      margin-top: 4px;
-      font-size: 15px;
-      color: var(--yellow);
-      font-weight: 700;
-    }
+        /* ===== COLUMNAS ===== */
+        .col {
+            background: var(--bg2);
+            border-radius: 14px;
+            border: 1px solid var(--bd);
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .block-title {
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--muted2);
+            font-weight: 700;
+            margin-bottom: 8px;
+            flex-shrink: 0;
+        }
 
-    /* ===== SEÑAL - FUENTES GRANDES Y LEGIBLES ===== */
-    .signal-block {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      min-height: 0;
-      margin-top: 2px;
-    }
-    .signal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 16px;
-      font-weight: 700;
-      padding-bottom: 4px;
-      border-bottom: 1px solid var(--bd);
-      flex-shrink: 0;
-    }
-    .signal-status {
-      padding: 2px 14px;
-      border-radius: 20px;
-      font-size: 16px;
-      font-weight: 700;
-    }
-    .signal-status.ready { background: rgba(0,230,118,0.15); color: var(--green); }
-    .signal-status.waiting { background: rgba(255,171,0,0.15); color: var(--yellow); }
-    .signal-status.blocked { background: rgba(255,61,87,0.15); color: var(--red); }
+        /* ===== COLUMNA IZQUIERDA ===== */
+        /* Posición */
+        .pos-side {
+            font-family: var(--cond);
+            font-size: 40px;
+            font-weight: 900;
+            color: var(--muted2);
+            margin-bottom: 6px;
+        }
+        .pos-side.long {
+            color: var(--green);
+        }
+        .pos-side.short {
+            color: var(--red);
+        }
+        .pos-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 5px;
+        }
+        .pos-item {
+            background: var(--bg3);
+            border: 1px solid var(--bd);
+            border-radius: 8px;
+            padding: 6px 10px;
+        }
+        .pos-item-label {
+            font-size: 10px;
+            color: var(--muted2);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+        .pos-item-val {
+            font-size: 22px;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+        .pos-item-val.green {
+            color: var(--green);
+        }
+        .pos-item-val.red {
+            color: var(--red);
+        }
+        .pos-item-val.muted {
+            color: var(--muted2);
+        }
+        .cool-row {
+            margin-top: 6px;
+            font-size: 16px;
+            color: var(--yellow);
+            font-weight: 700;
+        }
 
-    .signal-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 6px;
-      flex: 1;
-      min-height: 0;
-      padding-top: 4px;
-    }
-    .signal-side {
-      background: var(--bg3);
-      border-radius: 10px;
-      padding: 10px 12px;
-      border-left: 4px solid var(--muted2);
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
-    .signal-side.long { border-left-color: var(--green); }
-    .signal-side.short { border-left-color: var(--red); }
-    .signal-side-title {
-      font-size: 16px;
-      font-weight: 900;
-      margin-bottom: 4px;
-    }
-    .signal-side.long .signal-side-title { color: var(--green); }
-    .signal-side.short .signal-side-title { color: var(--red); }
+        /* ===== SEÑAL EN VIVO - FUENTES GRANDES ===== */
+        .signal-block {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            margin-top: 8px;
+        }
+        .signal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 16px;
+            font-weight: 700;
+            padding-bottom: 6px;
+            border-bottom: 1px solid var(--bd);
+            flex-shrink: 0;
+        }
+        .signal-status {
+            padding: 2px 16px;
+            border-radius: 20px;
+            font-size: 16px;
+            font-weight: 700;
+        }
+        .signal-status.ready {
+            background: rgba(0, 230, 118, 0.15);
+            color: var(--green);
+        }
+        .signal-status.waiting {
+            background: rgba(255, 171, 0, 0.15);
+            color: var(--yellow);
+        }
+        .signal-status.blocked {
+            background: rgba(255, 61, 87, 0.15);
+            color: var(--red);
+        }
 
-    /* Cada condición - FUENTES GRANDES */
-    .cond-row {
-      display: grid;
-      grid-template-columns: 1fr 44px 28px;
-      align-items: center;
-      gap: 4px;
-      padding: 4px 0;
-      font-size: 15px;
-      border-bottom: 1px solid rgba(30,37,48,0.1);
-      min-height: 30px;
-    }
-    .cond-row:last-child { border-bottom: none; }
-    .cond-label {
-      color: var(--muted2);
-      font-size: 13px;
-      font-weight: 600;
-      white-space: nowrap;
-    }
-    .cond-value {
-      font-size: 14px;
-      font-weight: 700;
-      text-align: right;
-      white-space: nowrap;
-    }
-    .cond-check {
-      font-size: 20px;
-      text-align: center;
-      width: 28px;
-      flex-shrink: 0;
-    }
-    .cond-check.ok { color: var(--green); }
-    .cond-check.fail { color: var(--red); }
+        .signal-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+            flex: 1;
+            min-height: 0;
+            padding-top: 6px;
+        }
+        .signal-side {
+            background: var(--bg3);
+            border-radius: 10px;
+            padding: 10px 12px;
+            border-left: 4px solid var(--muted2);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .signal-side.long {
+            border-left-color: var(--green);
+        }
+        .signal-side.short {
+            border-left-color: var(--red);
+        }
+        .signal-side-title {
+            font-size: 16px;
+            font-weight: 900;
+            margin-bottom: 4px;
+        }
+        .signal-side.long .signal-side-title {
+            color: var(--green);
+        }
+        .signal-side.short .signal-side-title {
+            color: var(--red);
+        }
 
-    .signal-footer {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding-top: 6px;
-      border-top: 1px solid var(--bd);
-      margin-top: auto;
-      flex-shrink: 0;
-    }
-    .signal-progress-label {
-      font-size: 14px;
-      font-weight: 700;
-      color: var(--muted2);
-    }
-    .signal-progress-pct {
-      font-size: 32px;
-      font-weight: 900;
-    }
-    .signal-progress-pct.ready { color: var(--green); }
-    .signal-progress-pct.waiting { color: var(--yellow); }
-    .signal-progress-pct.blocked { color: var(--red); }
+        /* Cada condición - FUENTES GRANDES y sin cortes */
+        .cond-row {
+            display: grid;
+            grid-template-columns: 1fr 50px 28px;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 0;
+            font-size: 16px;
+            border-bottom: 1px solid rgba(30, 37, 48, 0.1);
+            min-height: 32px;
+        }
+        .cond-row:last-child {
+            border-bottom: none;
+        }
+        .cond-label {
+            color: var(--muted2);
+            font-size: 14px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .cond-value {
+            font-size: 15px;
+            font-weight: 700;
+            text-align: right;
+            white-space: nowrap;
+        }
+        .cond-check {
+            font-size: 22px;
+            text-align: center;
+            width: 28px;
+            flex-shrink: 0;
+        }
+        .cond-check.ok {
+            color: var(--green);
+        }
+        .cond-check.fail {
+            color: var(--red);
+        }
 
-    /* ===== MÉTRICAS - FUENTES GRANDES ===== */
-    .metrics-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 4px;
-      margin-bottom: 6px;
-      flex-shrink: 0;
-    }
-    .metric-card {
-      background: var(--bg3);
-      border: 1px solid var(--bd);
-      border-radius: 8px;
-      padding: 8px 4px;
-      text-align: center;
-    }
-    .metric-label {
-      font-size: 9px;
-      text-transform: uppercase;
-      color: var(--muted2);
-      letter-spacing: 0.06em;
-    }
-    .metric-value {
-      font-size: 22px;
-      font-weight: 700;
-      line-height: 1.2;
-    }
-    .metric-value.green { color: var(--green); }
-    .metric-value.red { color: var(--red); }
-    .metric-value.yellow { color: var(--yellow); }
+        .signal-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 6px;
+            border-top: 1px solid var(--bd);
+            margin-top: auto;
+            flex-shrink: 0;
+        }
+        .signal-progress-label {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--muted2);
+        }
+        .signal-progress-pct {
+            font-size: 34px;
+            font-weight: 900;
+        }
+        .signal-progress-pct.ready {
+            color: var(--green);
+        }
+        .signal-progress-pct.waiting {
+            color: var(--yellow);
+        }
+        .signal-progress-pct.blocked {
+            color: var(--red);
+        }
 
-    /* ===== TRADES ===== */
-    .trades-wrap {
-      flex: 1;
-      overflow-y: auto;
-      min-height: 0;
-      font-size: 12px;
-    }
-    .trades-wrap table { width: 100%; border-collapse: collapse; }
-    .trades-wrap th {
-      text-align: left;
-      font-size: 9px;
-      text-transform: uppercase;
-      color: var(--muted2);
-      padding: 4px 4px;
-      border-bottom: 1px solid var(--bd);
-    }
-    .trades-wrap td {
-      padding: 4px 4px;
-      border-bottom: 1px solid rgba(30,37,48,0.3);
-    }
-    .pill {
-      display: inline-block;
-      padding: 2px 10px;
-      border-radius: 12px;
-      font-size: 10px;
-      font-weight: 700;
-    }
-    .pill-LONG { background: rgba(0,230,118,0.15); color: var(--green); }
-    .pill-SHORT { background: rgba(255,61,87,0.15); color: var(--red); }
-    .csv-btn {
-      font-size: 10px;
-      padding: 2px 10px;
-      border-radius: 10px;
-      border: 1px solid var(--bd);
-      background: transparent;
-      color: var(--muted2);
-      cursor: pointer;
-    }
-    .csv-btn:hover { border-color: var(--orange); color: var(--orange); }
+        /* ===== COLUMNA CENTRAL - GRÁFICO PEQUEÑO ===== */
+        .tv-wrap {
+            flex: 1;
+            height: 100%;
+            min-height: 0;
+        }
+        #tv-chart-container {
+            height: 100%;
+            width: 100%;
+            min-height: 150px;
+        }
 
-    /* ===== RESPONSIVE ===== */
-    @media (max-width: 1100px) {
-      .body-grid { grid-template-columns: 1fr; grid-template-rows: auto 1fr auto; }
-      .col { max-height: none; }
-      .col-right { padding: 10px; }
-    }
-    @media (max-width: 600px) {
-      .root { padding: 4px; gap: 3px; grid-template-rows: auto 1fr; }
-      .header { grid-template-columns: 1fr; padding: 6px 10px; gap: 4px; }
-      .logo { font-size: 20px; text-align: center; }
-      .h-center { gap: 8px; flex-wrap: wrap; justify-content: center; }
-      .h-price-val { font-size: 22px; }
-      .h-stat-val { font-size: 16px; }
-      .h-stat-label { font-size: 8px; }
-      .h-price-label { font-size: 11px; }
-      .status-pill { font-size: 10px; padding: 4px 10px; }
-      .body-grid { grid-template-columns: 1fr; grid-template-rows: auto 200px auto; gap: 3px; }
-      .col { padding: 8px; }
-      .col-right { padding: 8px; }
-      .pos-side { font-size: 28px; }
-      .pos-item-val { font-size: 16px; }
-      .signal-grid { grid-template-columns: 1fr 1fr; gap: 4px; }
-      .cond-row { grid-template-columns: 1fr 30px 20px; font-size: 12px; padding: 2px 0; min-height: 24px; }
-      .cond-label { font-size: 10px; }
-      .cond-value { font-size: 11px; }
-      .cond-check { font-size: 16px; width: 20px; }
-      .signal-side-title { font-size: 13px; }
-      .signal-progress-pct { font-size: 24px; }
-      .signal-status { font-size: 13px; padding: 2px 10px; }
-      .metrics-grid { grid-template-columns: 1fr 1fr 1fr; gap: 3px; }
-      .metric-value { font-size: 18px; }
-    }
-    .trades-wrap::-webkit-scrollbar { width: 3px; }
-    .trades-wrap::-webkit-scrollbar-track { background: var(--bg); }
-    .trades-wrap::-webkit-scrollbar-thumb { background: var(--bd); border-radius: 3px; }
-  </style>
+        /* ===== COLUMNA DERECHA ===== */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 5px;
+            margin-bottom: 8px;
+            flex-shrink: 0;
+        }
+        .metric-card {
+            background: var(--bg3);
+            border: 1px solid var(--bd);
+            border-radius: 8px;
+            padding: 8px 4px;
+            text-align: center;
+        }
+        .metric-label {
+            font-size: 10px;
+            text-transform: uppercase;
+            color: var(--muted2);
+            letter-spacing: 0.06em;
+        }
+        .metric-value {
+            font-size: 24px;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+        .metric-value.green {
+            color: var(--green);
+        }
+        .metric-value.red {
+            color: var(--red);
+        }
+        .metric-value.yellow {
+            color: var(--yellow);
+        }
+
+        .trades-wrap {
+            flex: 1;
+            overflow-y: auto;
+            min-height: 0;
+            font-size: 13px;
+        }
+        .trades-wrap table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .trades-wrap th {
+            text-align: left;
+            font-size: 10px;
+            text-transform: uppercase;
+            color: var(--muted2);
+            padding: 4px 4px;
+            border-bottom: 1px solid var(--bd);
+        }
+        .trades-wrap td {
+            padding: 4px 4px;
+            border-bottom: 1px solid rgba(30, 37, 48, 0.3);
+        }
+        .pill {
+            display: inline-block;
+            padding: 2px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+        .pill-LONG {
+            background: rgba(0, 230, 118, 0.15);
+            color: var(--green);
+        }
+        .pill-SHORT {
+            background: rgba(255, 61, 87, 0.15);
+            color: var(--red);
+        }
+        .csv-btn {
+            font-size: 10px;
+            padding: 2px 12px;
+            border-radius: 10px;
+            border: 1px solid var(--bd);
+            background: transparent;
+            color: var(--muted2);
+            cursor: pointer;
+        }
+        .csv-btn:hover {
+            border-color: var(--orange);
+            color: var(--orange);
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 1100px) {
+            .body-grid {
+                grid-template-columns: 1fr 1fr;
+                grid-template-rows: auto 1fr;
+            }
+            .col-center {
+                grid-column: span 2;
+                min-height: 200px;
+            }
+        }
+        @media (max-width: 700px) {
+            .body-grid {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto auto 1fr;
+            }
+            .col-center {
+                grid-column: span 1;
+                min-height: 180px;
+            }
+            .header {
+                grid-template-columns: 1fr;
+                padding: 6px 12px;
+                gap: 4px;
+            }
+            .logo {
+                font-size: 22px;
+                text-align: center;
+            }
+            .h-center {
+                gap: 10px;
+            }
+            .h-price-val {
+                font-size: 24px;
+            }
+            .h-stat-val {
+                font-size: 16px;
+            }
+            .pos-side {
+                font-size: 28px;
+            }
+            .pos-item-val {
+                font-size: 16px;
+            }
+            .cond-row {
+                grid-template-columns: 1fr 34px 20px;
+                font-size: 12px;
+                min-height: 24px;
+            }
+            .cond-label {
+                font-size: 10px;
+            }
+            .cond-value {
+                font-size: 11px;
+            }
+            .cond-check {
+                font-size: 16px;
+                width: 20px;
+            }
+            .signal-side-title {
+                font-size: 13px;
+            }
+            .signal-progress-pct {
+                font-size: 24px;
+            }
+            .signal-status {
+                font-size: 13px;
+                padding: 2px 10px;
+            }
+            .metric-value {
+                font-size: 18px;
+            }
+        }
+        .trades-wrap::-webkit-scrollbar {
+            width: 3px;
+        }
+        .trades-wrap::-webkit-scrollbar-track {
+            background: var(--bg);
+        }
+        .trades-wrap::-webkit-scrollbar-thumb {
+            background: var(--bd);
+            border-radius: 3px;
+        }
+    </style>
 </head>
 <body>
-<div class="root">
-  <!-- HEADER -->
-  <header class="header">
-    <div class="logo">◈ MOMENTUM BTC</div>
-    <div class="h-center">
-      <div class="h-price">
-        <span class="h-price-label">BTC/USD</span>
-        <span class="h-price-val" id="h-price">—</span>
-      </div>
-      <div class="h-stat"><span class="h-stat-label">RETURN</span><span class="h-stat-val" id="h-return">—</span></div>
-      <div class="h-stat"><span class="h-stat-label">WIN RATE</span><span class="h-stat-val" id="h-wr">—</span></div>
-      <div class="h-stat"><span class="h-stat-label">W / L</span><span class="h-stat-val" id="h-wl">—</span></div>
-      <div class="h-stat"><span class="h-stat-label">MAX DD</span><span class="h-stat-val" id="h-dd">—</span></div>
+    <div class="root">
+        <!-- HEADER -->
+        <header class="header">
+            <div class="logo">◈ MOMENTUM BTC</div>
+            <div class="h-center">
+                <div class="h-price">
+                    <span class="h-price-label">BTC/USD</span>
+                    <span class="h-price-val" id="h-price">—</span>
+                </div>
+                <div class="h-stat"><span class="h-stat-label">RETURN</span><span class="h-stat-val" id="h-return">—</span></div>
+                <div class="h-stat"><span class="h-stat-label">WIN RATE</span><span class="h-stat-val" id="h-wr">—</span></div>
+                <div class="h-stat"><span class="h-stat-label">W / L</span><span class="h-stat-val" id="h-wl">—</span></div>
+                <div class="h-stat"><span class="h-stat-label">MAX DD</span><span class="h-stat-val" id="h-dd">—</span></div>
+            </div>
+            <div class="h-right">
+                <div class="status-pill" id="status-pill"><span class="status-dot"></span><span id="status-text">CONECTANDO</span></div>
+                <span id="h-update" class="h-update">—</span>
+            </div>
+        </header>
+
+        <!-- BODY - TRES COLUMNAS -->
+        <div class="body-grid">
+
+            <!-- COLUMNA IZQUIERDA: Posición + Señal -->
+            <div class="col">
+                <div style="flex-shrink:0;">
+                    <div class="block-title">POSICIÓN</div>
+                    <div class="pos-side muted" id="pos-side">FLAT</div>
+                    <div class="pos-grid">
+                        <div class="pos-item"><div class="pos-item-label">ENTRADA</div><div class="pos-item-val muted" id="pos-entry">—</div></div>
+                        <div class="pos-item"><div class="pos-item-label">PnL</div><div class="pos-item-val" id="pos-pnl">—</div></div>
+                        <div class="pos-item"><div class="pos-item-label green">TP 5.80%</div><div class="pos-item-val green" id="pos-tp">—</div></div>
+                        <div class="pos-item"><div class="pos-item-label red">SL 2.60%</div><div class="pos-item-val red" id="pos-sl">—</div></div>
+                        <div class="pos-item"><div class="pos-item-label">DURACIÓN</div><div class="pos-item-val muted" id="pos-dur">—</div></div>
+                        <div class="pos-item"><div class="pos-item-label">TRAILING</div><div class="pos-item-val" id="pos-trailing" style="color:var(--muted2);">INACTIVO</div></div>
+                    </div>
+                    <div class="cool-row" id="cool-row">Cooldown: —</div>
+                </div>
+
+                <!-- SEÑAL EN VIVO -->
+                <div class="signal-block">
+                    <div class="signal-header">
+                        <span>📡 SEÑAL</span>
+                        <span class="signal-status waiting" id="signalStatus">ESPERANDO</span>
+                    </div>
+                    <div class="signal-grid">
+                        <div class="signal-side long">
+                            <div class="signal-side-title">▲ LONG</div>
+                            <div class="cond-row"><span class="cond-label">EMA10>EMA35</span><span class="cond-value" id="val-long-trend">—</span><span class="cond-check" id="chk-long-trend">⬜</span></div>
+                            <div class="cond-row"><span class="cond-label">MACD Line>0</span><span class="cond-value" id="val-long-macdline">—</span><span class="cond-check" id="chk-long-macdline">⬜</span></div>
+                            <div class="cond-row"><span class="cond-label">MACD Hist↑</span><span class="cond-value" id="val-long-macdhist">—</span><span class="cond-check" id="chk-long-macdhist">⬜</span></div>
+                            <div class="cond-row"><span class="cond-label">RSI &lt;78</span><span class="cond-value" id="val-long-rsi">—</span><span class="cond-check" id="chk-long-rsi">⬜</span></div>
+                        </div>
+                        <div class="signal-side short">
+                            <div class="signal-side-title">▼ SHORT</div>
+                            <div class="cond-row"><span class="cond-label">EMA10&lt;EMA35</span><span class="cond-value" id="val-short-trend">—</span><span class="cond-check" id="chk-short-trend">⬜</span></div>
+                            <div class="cond-row"><span class="cond-label">MACD Line&lt;0</span><span class="cond-value" id="val-short-macdline">—</span><span class="cond-check" id="chk-short-macdline">⬜</span></div>
+                            <div class="cond-row"><span class="cond-label">MACD Hist↓</span><span class="cond-value" id="val-short-macdhist">—</span><span class="cond-check" id="chk-short-macdhist">⬜</span></div>
+                            <div class="cond-row"><span class="cond-label">RSI &gt;20</span><span class="cond-value" id="val-short-rsi">—</span><span class="cond-check" id="chk-short-rsi">⬜</span></div>
+                        </div>
+                    </div>
+                    <div class="signal-footer">
+                        <span class="signal-progress-label">CONDICIONES</span>
+                        <span class="signal-progress-pct waiting" id="signalProgress">0%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- COLUMNA CENTRAL: GRÁFICO (más pequeño) -->
+            <div class="col col-center">
+                <div class="tv-wrap">
+                    <div id="tv-chart-container"></div>
+                </div>
+            </div>
+
+            <!-- COLUMNA DERECHA: Métricas + Trades -->
+            <div class="col">
+                <div style="flex-shrink:0;">
+                    <div class="block-title">RENDIMIENTO</div>
+                    <div class="metrics-grid">
+                        <div class="metric-card"><div class="metric-label">CAPITAL</div><div class="metric-value" id="m-cap">—</div></div>
+                        <div class="metric-card"><div class="metric-label">RETURN</div><div class="metric-value" id="m-return">—</div></div>
+                        <div class="metric-card"><div class="metric-label">WIN RATE</div><div class="metric-value" id="m-wr">—</div></div>
+                        <div class="metric-card"><div class="metric-label">MAX DD</div><div class="metric-value red" id="m-dd">—</div></div>
+                        <div class="metric-card"><div class="metric-label">W / L</div><div class="metric-value" id="m-wl">—</div></div>
+                        <div class="metric-card"><div class="metric-label">GROSS PnL</div><div class="metric-value" id="m-pnl">—</div></div>
+                    </div>
+                </div>
+
+                <div style="flex:1;display:flex;flex-direction:column;min-height:0;margin-top:4px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;flex-shrink:0;">
+                        <span class="block-title" style="margin-bottom:0;">OPERACIONES</span>
+                        <button class="csv-btn" onclick="downloadCSV()">↓ CSV</button>
+                    </div>
+                    <div class="trades-wrap">
+                        <table>
+                            <thead><tr><th>LADO</th><th>ENTRADA</th><th>SALIDA</th><th>PnL</th></tr></thead>
+                            <tbody id="trades-body">
+                                <tr><td colspan="4" style="text-align:center;color:var(--muted2);padding:16px 0;">Sin operaciones</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
     </div>
-    <div class="h-right">
-      <div class="status-pill" id="status-pill"><span class="status-dot"></span><span id="status-text">CONECTANDO</span></div>
-      <span id="h-update" class="h-update">—</span>
-    </div>
-  </header>
 
-  <!-- BODY -->
-  <div class="body-grid">
+    <script>
+        const API_BASE = "https://matiasbarone.pythonanywhere.com";
+        const REFRESH = 30000;
+        let allTrades = [];
 
-    <!-- COLUMNA IZQUIERDA: GRÁFICO (más pequeño) -->
-    <div class="col">
-      <div class="tv-wrap">
-        <div id="tv-chart-container"></div>
-      </div>
-    </div>
+        function updateCondition(id, isMet, valueText) {
+            const check = document.getElementById(`chk-${id}`);
+            const val = document.getElementById(`val-${id}`);
+            if (check) { check.textContent = isMet ? '✅' : '❌';
+                check.className = `cond-check ${isMet ? 'ok' : 'fail'}`; }
+            if (val) val.textContent = valueText;
+        }
 
-    <!-- COLUMNA DERECHA: TODA LA INFORMACIÓN (fuentes grandes) -->
-    <div class="col col-right">
+        async function fetchAll() {
+            try {
+                const [stR, trR] = await Promise.all([
+                    fetch(`${API_BASE}/api/btc/state`),
+                    fetch(`${API_BASE}/api/btc/trades`)
+                ]);
+                const state = await stR.json();
+                allTrades = await trR.json();
+                if (!Array.isArray(allTrades)) allTrades = [];
 
-      <!-- Posición -->
-      <div style="flex-shrink:0;">
-        <div class="block-title">POSICIÓN</div>
-        <div class="pos-side muted" id="pos-side">FLAT</div>
-        <div class="pos-grid">
-          <div class="pos-item"><div class="pos-item-label">ENTRADA</div><div class="pos-item-val muted" id="pos-entry">—</div></div>
-          <div class="pos-item"><div class="pos-item-label">PnL</div><div class="pos-item-val" id="pos-pnl">—</div></div>
-          <div class="pos-item"><div class="pos-item-label green">TP 5.80%</div><div class="pos-item-val green" id="pos-tp">—</div></div>
-          <div class="pos-item"><div class="pos-item-label red">SL 2.60%</div><div class="pos-item-val red" id="pos-sl">—</div></div>
-          <div class="pos-item"><div class="pos-item-label">DURACIÓN</div><div class="pos-item-val muted" id="pos-dur">—</div></div>
-          <div class="pos-item"><div class="pos-item-label">TRAILING</div><div class="pos-item-val" id="pos-trailing" style="color:var(--muted2);">INACTIVO</div></div>
-        </div>
-        <div class="cool-row" id="cool-row">Cooldown: —</div>
-      </div>
+                const cap = state.capital || 1000;
+                const initialCap = state.initial_capital || 1000;
+                const hasTrades = allTrades.length > 0;
+                const ret = hasTrades ? ((cap - initialCap) / initialCap * 100) : 0;
+                const wins = state.total_wins || 0,
+                    losses = state.total_losses || 0;
+                const tot = wins + losses;
+                const wr = tot > 0 ? wins / tot * 100 : 0;
+                const dd = state.max_drawdown_pct || 0;
+                const price = state.last_price || 0;
+                const ema10 = state.ema10;
+                const ema35 = state.ema35;
+                const macdLine = state.macd_line;
+                const macdHist = state.macd_hist;
+                const rsi = state.rsi;
+                const position = state.position;
+                const entryPrice = state.entry_price || 0;
+                const trailingActive = state.trailing_active || false;
+                const coolUntil = state.cooldown_until || 0;
+                const remainingSec = coolUntil - Date.now() / 1000;
+                const inCooldown = remainingSec > 0;
 
-      <!-- Señal en Vivo - FUENTES GRANDES -->
-      <div class="signal-block">
-        <div class="signal-header">
-          <span>📡 SEÑAL</span>
-          <span class="signal-status waiting" id="signalStatus">ESPERANDO</span>
-        </div>
-        <div class="signal-grid">
-          <div class="signal-side long">
-            <div class="signal-side-title">▲ LONG</div>
-            <div class="cond-row"><span class="cond-label">EMA10>EMA35</span><span class="cond-value" id="val-long-trend">—</span><span class="cond-check" id="chk-long-trend">⬜</span></div>
-            <div class="cond-row"><span class="cond-label">MACD Line>0</span><span class="cond-value" id="val-long-macdline">—</span><span class="cond-check" id="chk-long-macdline">⬜</span></div>
-            <div class="cond-row"><span class="cond-label">MACD Hist↑</span><span class="cond-value" id="val-long-macdhist">—</span><span class="cond-check" id="chk-long-macdhist">⬜</span></div>
-            <div class="cond-row"><span class="cond-label">RSI &lt;78</span><span class="cond-value" id="val-long-rsi">—</span><span class="cond-check" id="chk-long-rsi">⬜</span></div>
-          </div>
-          <div class="signal-side short">
-            <div class="signal-side-title">▼ SHORT</div>
-            <div class="cond-row"><span class="cond-label">EMA10&lt;EMA35</span><span class="cond-value" id="val-short-trend">—</span><span class="cond-check" id="chk-short-trend">⬜</span></div>
-            <div class="cond-row"><span class="cond-label">MACD Line&lt;0</span><span class="cond-value" id="val-short-macdline">—</span><span class="cond-check" id="chk-short-macdline">⬜</span></div>
-            <div class="cond-row"><span class="cond-label">MACD Hist↓</span><span class="cond-value" id="val-short-macdhist">—</span><span class="cond-check" id="chk-short-macdhist">⬜</span></div>
-            <div class="cond-row"><span class="cond-label">RSI &gt;20</span><span class="cond-value" id="val-short-rsi">—</span><span class="cond-check" id="chk-short-rsi">⬜</span></div>
-          </div>
-        </div>
-        <div class="signal-footer">
-          <span class="signal-progress-label">CONDICIONES</span>
-          <span class="signal-progress-pct waiting" id="signalProgress">0%</span>
-        </div>
-      </div>
+                // HEADER
+                document.getElementById('h-price').textContent = price ? `$${price.toLocaleString()}` : '—';
+                document.getElementById('h-return').textContent = `${ret>=0?'+':''}${ret.toFixed(1)}%`;
+                document.getElementById('h-return').style.color = ret >= 0 ? 'var(--green)' : 'var(--red)';
+                document.getElementById('h-wr').textContent = `${wr.toFixed(1)}%`;
+                document.getElementById('h-wl').innerHTML =
+                    `<span style="color:var(--green)">${wins}</span>/<span style="color:var(--red)">${losses}</span>`;
+                document.getElementById('h-dd').textContent = `${dd.toFixed(1)}%`;
+                document.getElementById('h-dd').style.color = dd > 10 ? 'var(--red)' : 'var(--yellow)';
+                document.getElementById('h-update').textContent = new Date().toLocaleTimeString('es-AR');
+                document.getElementById('status-pill').className = 'status-pill alive';
+                document.getElementById('status-text').textContent = 'ACTIVO';
 
-      <!-- Métricas -->
-      <div style="flex-shrink:0;">
-        <div class="block-title">RENDIMIENTO</div>
-        <div class="metrics-grid">
-          <div class="metric-card"><div class="metric-label">CAPITAL</div><div class="metric-value" id="m-cap">—</div></div>
-          <div class="metric-card"><div class="metric-label">RETURN</div><div class="metric-value" id="m-return">—</div></div>
-          <div class="metric-card"><div class="metric-label">WIN RATE</div><div class="metric-value" id="m-wr">—</div></div>
-          <div class="metric-card"><div class="metric-label">MAX DD</div><div class="metric-value red" id="m-dd">—</div></div>
-          <div class="metric-card"><div class="metric-label">W / L</div><div class="metric-value" id="m-wl">—</div></div>
-          <div class="metric-card"><div class="metric-label">GROSS PnL</div><div class="metric-value" id="m-pnl">—</div></div>
-        </div>
-      </div>
+                // POSICIÓN
+                const posSide = document.getElementById('pos-side');
+                if (position && entryPrice) {
+                    const side = position;
+                    const entry = entryPrice;
+                    const lev = 10,
+                        tpPct = 5.80,
+                        slPct = 2.60;
+                    let tp, sl;
+                    if (side === 'LONG') { tp = entry * (1 + tpPct / 100);
+                        sl = entry * (1 - slPct / 100); } else { tp = entry * (1 - tpPct / 100);
+                        sl = entry * (1 + slPct / 100); }
+                    const profitPct = side === 'LONG' ? (price - entry) / entry * lev * 100 : (entry - price) / entry *
+                        lev * 100;
+                    const dur = state.entry_time ? Math.floor((Date.now() / 1000 - state.entry_time) / 60) : 0;
+                    posSide.textContent = side;
+                    posSide.className = `pos-side ${side.toLowerCase()}`;
+                    document.getElementById('pos-entry').textContent = `$${entry.toLocaleString()}`;
+                    document.getElementById('pos-pnl').textContent = `${profitPct>=0?'+':''}${profitPct.toFixed(1)}%`;
+                    document.getElementById('pos-pnl').className = `pos-item-val ${profitPct>=0?'green':'red'}`;
+                    document.getElementById('pos-tp').textContent = `$${tp.toLocaleString()}`;
+                    document.getElementById('pos-sl').textContent = `$${sl.toLocaleString()}`;
+                    document.getElementById('pos-dur').textContent = `${dur}m`;
+                    document.getElementById('pos-trailing').textContent = trailingActive ? '🔹 ACTIVO' : 'INACTIVO';
+                    document.getElementById('pos-trailing').style.color = trailingActive ? 'var(--yellow)' :
+                        'var(--muted2)';
+                } else {
+                    posSide.textContent = 'FLAT';
+                    posSide.className = 'pos-side muted';
+                    ['pos-entry', 'pos-tp', 'pos-sl', 'pos-dur'].forEach(id => document.getElementById(id).textContent =
+                        '—');
+                    document.getElementById('pos-pnl').textContent = '—';
+                    document.getElementById('pos-pnl').className = 'pos-item-val muted';
+                    document.getElementById('pos-trailing').textContent = 'INACTIVO';
+                    document.getElementById('pos-trailing').style.color = 'var(--muted2)';
+                }
+                const remainingMin = Math.max(0, Math.floor(remainingSec / 60));
+                document.getElementById('cool-row').textContent = remainingMin > 0 ?
+                    `⏳ Cooldown: ${remainingMin} min` : 'Cooldown: —';
 
-      <!-- Trades -->
-      <div style="flex:1;display:flex;flex-direction:column;min-height:0;margin-top:2px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;flex-shrink:0;">
-          <span class="block-title" style="margin-bottom:0;">OPERACIONES</span>
-          <button class="csv-btn" onclick="downloadCSV()">↓ CSV</button>
-        </div>
-        <div class="trades-wrap">
-          <table>
-            <thead><tr><th>LADO</th><th>ENTRADA</th><th>SALIDA</th><th>PnL</th></tr></thead>
-            <tbody id="trades-body">
-              <tr><td colspan="4" style="text-align:center;color:var(--muted2);padding:12px 0;">Sin operaciones</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
+                // SEÑAL
+                const longTrend = ema10 !== undefined && ema35 !== undefined && ema10 > ema35;
+                const longMacdLine = macdLine !== undefined && macdLine > 0;
+                const longMacdHist = macdHist !== undefined && macdHist !== null && macdHist > 0;
+                const longRsi = rsi !== undefined && rsi < 78;
+                const shortTrend = ema10 !== undefined && ema35 !== undefined && ema10 < ema35;
+                const shortMacdLine = macdLine !== undefined && macdLine < 0;
+                const shortMacdHist = macdHist !== undefined && macdHist !== null && macdHist < 0;
+                const shortRsi = rsi !== undefined && rsi > 20;
 
-    </div>
-  </div>
-</div>
+                updateCondition('long-trend', longTrend, `${ema10?.toFixed(0)||'—'}`);
+                updateCondition('long-macdline', longMacdLine, `${macdLine?.toFixed(1)||'—'}`);
+                updateCondition('long-macdhist', longMacdHist, `${macdHist?.toFixed(1)||'—'}`);
+                updateCondition('long-rsi', longRsi, `${rsi?.toFixed(0)||'—'}`);
+                updateCondition('short-trend', shortTrend, `${ema10?.toFixed(0)||'—'}`);
+                updateCondition('short-macdline', shortMacdLine, `${macdLine?.toFixed(1)||'—'}`);
+                updateCondition('short-macdhist', shortMacdHist, `${macdHist?.toFixed(1)||'—'}`);
+                updateCondition('short-rsi', shortRsi, `${rsi?.toFixed(0)||'—'}`);
 
-<script>
-const API_BASE = "https://matiasbarone.pythonanywhere.com";
-const REFRESH = 30000;
-let allTrades = [];
+                const longCount = [longTrend, longMacdLine, longMacdHist, longRsi].filter(Boolean).length;
+                const shortCount = [shortTrend, shortMacdLine, shortMacdHist, shortRsi].filter(Boolean).length;
+                const total = 8,
+                    met = longCount + shortCount;
+                const pct = Math.round((met / total) * 100);
 
-function updateCondition(id, isMet, valueText) {
-  const check = document.getElementById(`chk-${id}`);
-  const val = document.getElementById(`val-${id}`);
-  if (check) { check.textContent = isMet ? '✅' : '❌'; check.className = `cond-check ${isMet ? 'ok' : 'fail'}`; }
-  if (val) val.textContent = valueText;
-}
+                let statusText = 'ESPERANDO',
+                    statusClass = 'waiting';
+                if (position) { statusText = `🟢 ${position} ACTIVA`;
+                    statusClass = 'ready'; } else if (inCooldown) { statusText = `⏳ CD: ${remainingMin}m`;
+                    statusClass = 'waiting'; } else if (longCount === 4) { statusText = '🟢 LONG LISTA';
+                    statusClass = 'ready'; } else if (shortCount === 4) { statusText = '🔴 SHORT LISTA';
+                    statusClass = 'ready'; } else if (pct >= 75) { statusText = `🟡 ${pct}%`;
+                    statusClass = 'waiting'; } else { statusText = `🔴 ${pct}%`;
+                    statusClass = 'blocked'; }
 
-async function fetchAll() {
-  try {
-    const [stR, trR] = await Promise.all([
-      fetch(`${API_BASE}/api/btc/state`),
-      fetch(`${API_BASE}/api/btc/trades`)
-    ]);
-    const state = await stR.json();
-    allTrades = await trR.json();
-    if (!Array.isArray(allTrades)) allTrades = [];
+                document.getElementById('signalStatus').textContent = statusText;
+                document.getElementById('signalStatus').className = `signal-status ${statusClass}`;
+                document.getElementById('signalProgress').textContent = `${pct}%`;
+                document.getElementById('signalProgress').className = `signal-progress-pct ${statusClass}`;
 
-    const cap = state.capital || 1000;
-    const initialCap = state.initial_capital || 1000;
-    const hasTrades = allTrades.length > 0;
-    const ret = hasTrades ? ((cap - initialCap) / initialCap * 100) : 0;
-    const wins = state.total_wins || 0, losses = state.total_losses || 0;
-    const tot = wins + losses;
-    const wr = tot > 0 ? wins/tot*100 : 0;
-    const dd = state.max_drawdown_pct || 0;
-    const price = state.last_price || 0;
-    const ema10 = state.ema10;
-    const ema35 = state.ema35;
-    const macdLine = state.macd_line;
-    const macdHist = state.macd_hist;
-    const rsi = state.rsi;
-    const position = state.position;
-    const entryPrice = state.entry_price || 0;
-    const trailingActive = state.trailing_active || false;
-    const coolUntil = state.cooldown_until || 0;
-    const remainingSec = coolUntil - Date.now()/1000;
-    const inCooldown = remainingSec > 0;
+                // MÉTRICAS
+                document.getElementById('m-cap').textContent = `$${(cap/1000).toFixed(1)}k`;
+                document.getElementById('m-return').textContent = `${ret>=0?'+':''}${ret.toFixed(1)}%`;
+                document.getElementById('m-return').className = `metric-value ${ret>=0?'green':'red'}`;
+                document.getElementById('m-wr').textContent = `${wr.toFixed(1)}%`;
+                document.getElementById('m-dd').textContent = `${dd.toFixed(1)}%`;
+                document.getElementById('m-wl').innerHTML =
+                    `<span style="color:var(--green)">${wins}</span>/<span style="color:var(--red)">${losses}</span>`;
+                document.getElementById('m-pnl').textContent =
+                    `${(state.gross_pnl||0)>=0?'+':''}$${Math.abs(state.gross_pnl||0).toFixed(0)}`;
+                document.getElementById('m-pnl').className = `metric-value ${(state.gross_pnl||0)>=0?'green':'red'}`;
 
-    // HEADER
-    document.getElementById('h-price').textContent = price ? `$${price.toLocaleString()}` : '—';
-    document.getElementById('h-return').textContent = `${ret>=0?'+':''}${ret.toFixed(1)}%`;
-    document.getElementById('h-return').style.color = ret>=0 ? 'var(--green)' : 'var(--red)';
-    document.getElementById('h-wr').textContent = `${wr.toFixed(1)}%`;
-    document.getElementById('h-wl').innerHTML = `<span style="color:var(--green)">${wins}</span>/<span style="color:var(--red)">${losses}</span>`;
-    document.getElementById('h-dd').textContent = `${dd.toFixed(1)}%`;
-    document.getElementById('h-dd').style.color = dd > 10 ? 'var(--red)' : 'var(--yellow)';
-    document.getElementById('h-update').textContent = new Date().toLocaleTimeString('es-AR');
-    document.getElementById('status-pill').className = 'status-pill alive';
-    document.getElementById('status-text').textContent = 'ACTIVO';
+                // TRADES
+                const tbody = document.getElementById('trades-body');
+                if (!allTrades || allTrades.length === 0) {
+                    tbody.innerHTML =
+                        `<tr><td colspan="4" style="text-align:center;color:var(--muted2);padding:16px 0;">Sin operaciones</td></tr>`;
+                } else {
+                    tbody.innerHTML = [...allTrades].reverse().slice(0, 15).map(t => {
+                        const pnl = t.pnl_pct_neto || t.pnl_pct_bruto || 0;
+                        return `<tr>
+                            <td><span class="pill pill-${t.side}">${t.side}</span></td>
+                            <td>$${(t.entry_price||0).toLocaleString()}</td>
+                            <td>$${(t.exit_price||0).toLocaleString()}</td>
+                            <td class="${pnl>=0?'green':'red'}">${pnl>=0?'+':''}${pnl.toFixed(1)}%</td>
+                        </tr>`;
+                    }).join('');
+                }
 
-    // POSICIÓN
-    const posSide = document.getElementById('pos-side');
-    if (position && entryPrice) {
-      const side = position;
-      const entry = entryPrice;
-      const lev = 10, tpPct = 5.80, slPct = 2.60;
-      let tp, sl;
-      if (side === 'LONG') { tp = entry*(1+tpPct/100); sl = entry*(1-slPct/100); } else { tp = entry*(1-tpPct/100); sl = entry*(1+slPct/100); }
-      const profitPct = side === 'LONG' ? (price-entry)/entry*lev*100 : (entry-price)/entry*lev*100;
-      const dur = state.entry_time ? Math.floor((Date.now()/1000 - state.entry_time)/60) : 0;
-      posSide.textContent = side;
-      posSide.className = `pos-side ${side.toLowerCase()}`;
-      document.getElementById('pos-entry').textContent = `$${entry.toLocaleString()}`;
-      document.getElementById('pos-pnl').textContent = `${profitPct>=0?'+':''}${profitPct.toFixed(1)}%`;
-      document.getElementById('pos-pnl').className = `pos-item-val ${profitPct>=0?'green':'red'}`;
-      document.getElementById('pos-tp').textContent = `$${tp.toLocaleString()}`;
-      document.getElementById('pos-sl').textContent = `$${sl.toLocaleString()}`;
-      document.getElementById('pos-dur').textContent = `${dur}m`;
-      document.getElementById('pos-trailing').textContent = trailingActive ? '🔹 ACTIVO' : 'INACTIVO';
-      document.getElementById('pos-trailing').style.color = trailingActive ? 'var(--yellow)' : 'var(--muted2)';
-    } else {
-      posSide.textContent = 'FLAT';
-      posSide.className = 'pos-side muted';
-      ['pos-entry','pos-tp','pos-sl','pos-dur'].forEach(id => document.getElementById(id).textContent = '—');
-      document.getElementById('pos-pnl').textContent = '—';
-      document.getElementById('pos-pnl').className = 'pos-item-val muted';
-      document.getElementById('pos-trailing').textContent = 'INACTIVO';
-      document.getElementById('pos-trailing').style.color = 'var(--muted2)';
-    }
-    const remainingMin = Math.max(0, Math.floor(remainingSec / 60));
-    document.getElementById('cool-row').textContent = remainingMin > 0 ? `⏳ Cooldown: ${remainingMin} min` : 'Cooldown: —';
+            } catch (e) {
+                console.error(e);
+                document.getElementById('status-pill').className = 'status-pill dead';
+                document.getElementById('status-text').textContent = 'DESCONECTADO';
+            }
+        }
 
-    // SEÑAL
-    const longTrend = ema10 !== undefined && ema35 !== undefined && ema10 > ema35;
-    const longMacdLine = macdLine !== undefined && macdLine > 0;
-    const longMacdHist = macdHist !== undefined && macdHist !== null && macdHist > 0;
-    const longRsi = rsi !== undefined && rsi < 78;
-    const shortTrend = ema10 !== undefined && ema35 !== undefined && ema10 < ema35;
-    const shortMacdLine = macdLine !== undefined && macdLine < 0;
-    const shortMacdHist = macdHist !== undefined && macdHist !== null && macdHist < 0;
-    const shortRsi = rsi !== undefined && rsi > 20;
+        function downloadCSV() {
+            if (!allTrades || allTrades.length === 0) return;
+            const headers = ['timestamp', 'side', 'entry_price', 'exit_price', 'pnl_pct_neto', 'pnl_usd', 'reason'];
+            const rows = allTrades.map(t => headers.map(h => `"${t[h]!==undefined?t[h]:''}"`).join(','));
+            const blob = new Blob([
+                [headers.join(','), ...rows].join('\n')
+            ], { type: 'text/csv' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `btc_trades_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+        }
 
-    updateCondition('long-trend', longTrend, `${ema10?.toFixed(0)||'—'}`);
-    updateCondition('long-macdline', longMacdLine, `${macdLine?.toFixed(1)||'—'}`);
-    updateCondition('long-macdhist', longMacdHist, `${macdHist?.toFixed(1)||'—'}`);
-    updateCondition('long-rsi', longRsi, `${rsi?.toFixed(0)||'—'}`);
-    updateCondition('short-trend', shortTrend, `${ema10?.toFixed(0)||'—'}`);
-    updateCondition('short-macdline', shortMacdLine, `${macdLine?.toFixed(1)||'—'}`);
-    updateCondition('short-macdhist', shortMacdHist, `${macdHist?.toFixed(1)||'—'}`);
-    updateCondition('short-rsi', shortRsi, `${rsi?.toFixed(0)||'—'}`);
+        function initTradingView() {
+            if (typeof TradingView === 'undefined') { setTimeout(initTradingView, 300); return; }
+            const container = document.getElementById('tv-chart-container');
+            if (container) {
+                new TradingView.widget({
+                    container_id: 'tv-chart-container',
+                    symbol: 'OKX:BTCUSD.P',
+                    interval: '15',
+                    timezone: 'America/Argentina/Buenos_Aires',
+                    theme: 'dark',
+                    style: '1',
+                    locale: 'es',
+                    toolbar_bg: '#0e1115',
+                    enable_publishing: false,
+                    hide_top_toolbar: false,
+                    save_image: false,
+                    backgroundColor: '#080a0c',
+                    gridColor: '#1e2530',
+                    studies: [
+                        { id: 'EMA@tv-basicstudies', inputs: { length: 10 } },
+                        { id: 'EMA@tv-basicstudies', inputs: { length: 35 } },
+                        { id: 'MACD@tv-basicstudies', inputs: { fastLength: 10, slowLength: 25, signalLength: 9 } },
+                        { id: 'RSI@tv-basicstudies', inputs: { length: 22 } },
+                    ],
+                    overrides: {
+                        'mainSeriesProperties.candleStyle.upColor': '#00e676',
+                        'mainSeriesProperties.candleStyle.downColor': '#ff3d57',
+                        'paneProperties.background': '#080a0c',
+                        'volumePaneSize': 'hidden'
+                    },
+                    autosize: true
+                });
+            }
+        }
 
-    const longCount = [longTrend, longMacdLine, longMacdHist, longRsi].filter(Boolean).length;
-    const shortCount = [shortTrend, shortMacdLine, shortMacdHist, shortRsi].filter(Boolean).length;
-    const total = 8, met = longCount + shortCount;
-    const pct = Math.round((met/total)*100);
-
-    let statusText = 'ESPERANDO', statusClass = 'waiting';
-    if (position) { statusText = `🟢 ${position} ACTIVA`; statusClass = 'ready'; }
-    else if (inCooldown) { statusText = `⏳ CD: ${remainingMin}m`; statusClass = 'waiting'; }
-    else if (longCount === 4) { statusText = '🟢 LONG LISTA'; statusClass = 'ready'; }
-    else if (shortCount === 4) { statusText = '🔴 SHORT LISTA'; statusClass = 'ready'; }
-    else if (pct >= 75) { statusText = `🟡 ${pct}%`; statusClass = 'waiting'; }
-    else { statusText = `🔴 ${pct}%`; statusClass = 'blocked'; }
-
-    document.getElementById('signalStatus').textContent = statusText;
-    document.getElementById('signalStatus').className = `signal-status ${statusClass}`;
-    document.getElementById('signalProgress').textContent = `${pct}%`;
-    document.getElementById('signalProgress').className = `signal-progress-pct ${statusClass}`;
-
-    // MÉTRICAS
-    document.getElementById('m-cap').textContent = `$${(cap/1000).toFixed(1)}k`;
-    document.getElementById('m-return').textContent = `${ret>=0?'+':''}${ret.toFixed(1)}%`;
-    document.getElementById('m-return').className = `metric-value ${ret>=0?'green':'red'}`;
-    document.getElementById('m-wr').textContent = `${wr.toFixed(1)}%`;
-    document.getElementById('m-dd').textContent = `${dd.toFixed(1)}%`;
-    document.getElementById('m-wl').innerHTML = `<span style="color:var(--green)">${wins}</span>/<span style="color:var(--red)">${losses}</span>`;
-    document.getElementById('m-pnl').textContent = `${(state.gross_pnl||0)>=0?'+':''}$${Math.abs(state.gross_pnl||0).toFixed(0)}`;
-    document.getElementById('m-pnl').className = `metric-value ${(state.gross_pnl||0)>=0?'green':'red'}`;
-
-    // TRADES
-    const tbody = document.getElementById('trades-body');
-    if (!allTrades || allTrades.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;color:var(--muted2);padding:12px 0;">Sin operaciones</td></tr>`;
-    } else {
-      tbody.innerHTML = [...allTrades].reverse().slice(0,15).map(t => {
-        const pnl = t.pnl_pct_neto || t.pnl_pct_bruto || 0;
-        return `<tr>
-          <td><span class="pill pill-${t.side}">${t.side}</span></td>
-          <td>$${(t.entry_price||0).toLocaleString()}</td>
-          <td>$${(t.exit_price||0).toLocaleString()}</td>
-          <td class="${pnl>=0?'green':'red'}">${pnl>=0?'+':''}${pnl.toFixed(1)}%</td>
-        </tr>`;
-      }).join('');
-    }
-
-  } catch(e) {
-    console.error(e);
-    document.getElementById('status-pill').className = 'status-pill dead';
-    document.getElementById('status-text').textContent = 'DESCONECTADO';
-  }
-}
-
-function downloadCSV() {
-  if (!allTrades || allTrades.length === 0) return;
-  const headers = ['timestamp','side','entry_price','exit_price','pnl_pct_neto','pnl_usd','reason'];
-  const rows = allTrades.map(t => headers.map(h => `"${t[h]!==undefined?t[h]:''}"`).join(','));
-  const blob = new Blob([[headers.join(','), ...rows].join('\n')], {type:'text/csv'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `btc_trades_${new Date().toISOString().split('T')[0]}.csv`;
-  a.click();
-}
-
-function initTradingView() {
-  if (typeof TradingView === 'undefined') { setTimeout(initTradingView, 300); return; }
-  const container = document.getElementById('tv-chart-container');
-  if (container) {
-    new TradingView.widget({
-      container_id: 'tv-chart-container',
-      symbol: 'OKX:BTCUSD.P',
-      interval: '15',
-      timezone: 'America/Argentina/Buenos_Aires',
-      theme: 'dark',
-      style: '1',
-      locale: 'es',
-      toolbar_bg: '#0e1115',
-      enable_publishing: false,
-      hide_top_toolbar: false,
-      save_image: false,
-      backgroundColor: '#080a0c',
-      gridColor: '#1e2530',
-      studies: [
-        { id: 'EMA@tv-basicstudies', inputs: { length: 10 } },
-        { id: 'EMA@tv-basicstudies', inputs: { length: 35 } },
-        { id: 'MACD@tv-basicstudies', inputs: { fastLength: 10, slowLength: 25, signalLength: 9 } },
-        { id: 'RSI@tv-basicstudies', inputs: { length: 22 } },
-      ],
-      overrides: {
-        'mainSeriesProperties.candleStyle.upColor': '#00e676',
-        'mainSeriesProperties.candleStyle.downColor': '#ff3d57',
-        'paneProperties.background': '#080a0c',
-        'volumePaneSize': 'hidden'
-      },
-      autosize: true
-    });
-  }
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-  initTradingView();
-  fetchAll();
-  setInterval(fetchAll, REFRESH);
-});
-</script>
+        document.addEventListener('DOMContentLoaded', function() {
+            initTradingView();
+            fetchAll();
+            setInterval(fetchAll, REFRESH);
+        });
+    </script>
 </body>
 </html>
