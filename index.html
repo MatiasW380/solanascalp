@@ -39,7 +39,7 @@
     }
     .root {
       display: grid;
-      grid-template-rows: 64px 1fr;
+      grid-template-rows: 60px 1fr;
       height: 100vh;
       width: 100%;
       gap: 4px;
@@ -51,16 +51,16 @@
       display: grid;
       grid-template-columns: auto 1fr auto;
       align-items: center;
-      padding: 6px 16px;
+      padding: 4px 14px;
       background: var(--bg2);
       border-radius: var(--radius);
       border: 1px solid var(--bd);
-      gap: 12px;
+      gap: 10px;
       min-height: 0;
     }
     .logo {
       font-family: var(--cond);
-      font-size: 20px;
+      font-size: 18px;
       font-weight: 900;
       color: var(--orange);
       letter-spacing: 0.03em;
@@ -70,21 +70,21 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 18px;
+      gap: 14px;
       flex-wrap: wrap;
     }
     .h-price {
       display: flex;
       align-items: baseline;
-      gap: 6px;
+      gap: 4px;
     }
     .h-price-label {
-      font-size: 11px;
+      font-size: 10px;
       color: var(--muted2);
       font-weight: 700;
     }
     .h-price-val {
-      font-size: 24px;
+      font-size: 22px;
       font-weight: 700;
       color: var(--text);
     }
@@ -94,47 +94,47 @@
       align-items: center;
     }
     .h-stat-label {
-      font-size: 8px;
+      font-size: 7px;
       color: var(--muted2);
       text-transform: uppercase;
-      letter-spacing: 0.06em;
+      letter-spacing: 0.05em;
     }
     .h-stat-val {
-      font-size: 16px;
+      font-size: 14px;
       font-weight: 700;
     }
     .h-right {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
     }
     .status-pill {
       display: flex;
       align-items: center;
-      gap: 6px;
-      padding: 4px 12px;
+      gap: 5px;
+      padding: 3px 10px;
       border-radius: 30px;
       border: 1px solid var(--bd);
-      font-size: 10px;
+      font-size: 9px;
       font-weight: 700;
       background: var(--bg3);
     }
     .status-dot {
-      width: 8px;
-      height: 8px;
+      width: 7px;
+      height: 7px;
       border-radius: 50%;
       background: var(--muted);
     }
     .status-pill.alive { border-color: var(--green); color: var(--green); background: rgba(0,230,118,0.08); }
     .status-pill.alive .status-dot { background: var(--green); animation: blink 2s infinite; }
     .status-pill.dead { border-color: var(--red); color: var(--red); background: rgba(255,61,87,0.12); }
-    .h-update { font-size: 9px; color: var(--muted); }
+    .h-update { font-size: 8px; color: var(--muted); }
     @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
 
-    /* ===== CUERPO PRINCIPAL - NUEVA DISTRIBUCIÓN ===== */
+    /* ===== CUERPO PRINCIPAL ===== */
     .body-grid {
       display: grid;
-      grid-template-columns: 300px 1fr 280px;
+      grid-template-columns: 320px 1fr 280px;
       gap: 4px;
       height: 100%;
       min-height: 0;
@@ -143,7 +143,7 @@
       background: var(--bg2);
       border-radius: var(--radius);
       border: 1px solid var(--bd);
-      padding: 12px;
+      padding: 10px;
       display: flex;
       flex-direction: column;
       overflow: hidden;
@@ -153,58 +153,53 @@
       border: 1px solid var(--bd);
     }
     .block-title {
-      font-size: 10px;
+      font-size: 9px;
       text-transform: uppercase;
-      letter-spacing: 0.1em;
+      letter-spacing: 0.08em;
       color: var(--muted2);
       font-weight: 700;
-      margin-bottom: 6px;
+      margin-bottom: 4px;
       flex-shrink: 0;
     }
 
-    /* ===== COLUMNA IZQUIERDA - DISTRIBUCIÓN SIMÉTRICA ===== */
+    /* ===== COLUMNA IZQUIERDA ===== */
     .left-col {
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 4px;
     }
-    /* Bloque de Posición */
+    /* Bloque Posición */
     .pos-block {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      min-height: 0;
+      flex: 0 0 auto;
     }
     .pos-side {
       font-family: var(--cond);
-      font-size: 32px;
+      font-size: 28px;
       font-weight: 900;
       color: var(--muted2);
-      margin-bottom: 4px;
-      flex-shrink: 0;
+      margin-bottom: 2px;
     }
     .pos-side.long { color: var(--green); }
     .pos-side.short { color: var(--red); }
     .pos-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 4px;
-      flex-shrink: 0;
+      gap: 3px;
     }
     .pos-item {
       background: var(--bg3);
       border: 1px solid var(--bd);
-      border-radius: 6px;
-      padding: 4px 8px;
+      border-radius: 5px;
+      padding: 3px 6px;
     }
     .pos-item-label {
-      font-size: 8px;
+      font-size: 7px;
       color: var(--muted2);
       text-transform: uppercase;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.04em;
     }
     .pos-item-val {
-      font-size: 16px;
+      font-size: 14px;
       font-weight: 700;
       line-height: 1.2;
     }
@@ -212,55 +207,53 @@
     .pos-item-val.red { color: var(--red); }
     .pos-item-val.muted { color: var(--muted2); }
     .cool-row {
-      margin-top: 4px;
-      font-size: 13px;
+      margin-top: 2px;
+      font-size: 12px;
       color: var(--yellow);
-      flex-shrink: 0;
       font-weight: 700;
     }
 
-    /* Bloque de Señal - AHORA CON MISMA ALTURA Y FUENTES GRANDES */
+    /* ===== BLOQUE SEÑAL - DEFINITIVO ===== */
     .signal-block {
       flex: 1;
       display: flex;
       flex-direction: column;
       min-height: 0;
-      margin-top: 2px;
     }
     .signal-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 700;
-      padding-bottom: 4px;
+      padding-bottom: 3px;
       border-bottom: 1px solid var(--bd);
       flex-shrink: 0;
     }
     .signal-status {
-      padding: 2px 12px;
-      border-radius: 20px;
-      font-size: 13px;
+      padding: 1px 10px;
+      border-radius: 16px;
+      font-size: 11px;
       font-weight: 700;
     }
     .signal-status.ready { background: rgba(0,230,118,0.15); color: var(--green); }
     .signal-status.waiting { background: rgba(255,171,0,0.15); color: var(--yellow); }
     .signal-status.blocked { background: rgba(255,61,87,0.15); color: var(--red); }
 
-    /* Distribución de condiciones en 2 columnas con texto más grande */
+    /* Grid de condiciones - optimizado para espacio */
     .signal-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 6px;
+      gap: 4px;
       flex: 1;
       min-height: 0;
-      padding-top: 4px;
+      padding-top: 3px;
     }
     .signal-side {
       background: var(--bg3);
-      border-radius: 8px;
-      padding: 8px 10px;
-      border-left: 4px solid var(--muted2);
+      border-radius: 6px;
+      padding: 5px 7px;
+      border-left: 3px solid var(--muted2);
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -268,40 +261,43 @@
     .signal-side.long { border-left-color: var(--green); }
     .signal-side.short { border-left-color: var(--red); }
     .signal-side-title {
-      font-size: 13px;
+      font-size: 11px;
       font-weight: 900;
-      margin-bottom: 4px;
+      margin-bottom: 2px;
     }
     .signal-side.long .signal-side-title { color: var(--green); }
     .signal-side.short .signal-side-title { color: var(--red); }
 
+    /* Cada condición en una fila - con espacio justo */
     .cond-row {
       display: grid;
-      grid-template-columns: 1fr auto 24px;
+      grid-template-columns: 1fr 32px 18px;
       align-items: center;
-      gap: 4px;
-      padding: 3px 0;
-      font-size: 12px;
-      border-bottom: 1px solid rgba(30,37,48,0.15);
-      min-height: 26px;
+      gap: 2px;
+      padding: 2px 0;
+      font-size: 10px;
+      border-bottom: 1px solid rgba(30,37,48,0.1);
+      min-height: 20px;
     }
     .cond-row:last-child { border-bottom: none; }
     .cond-label {
       color: var(--muted2);
-      font-size: 10px;
+      font-size: 8px;
       font-weight: 600;
       white-space: nowrap;
+      letter-spacing: 0.02em;
     }
     .cond-value {
-      font-size: 11px;
+      font-size: 9px;
       font-weight: 700;
       text-align: right;
       white-space: nowrap;
+      font-variant-numeric: tabular-nums;
     }
     .cond-check {
-      font-size: 16px;
+      font-size: 12px;
       text-align: center;
-      width: 24px;
+      width: 18px;
       flex-shrink: 0;
     }
     .cond-check.ok { color: var(--green); }
@@ -311,18 +307,18 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding-top: 4px;
+      padding-top: 3px;
       border-top: 1px solid var(--bd);
       margin-top: auto;
       flex-shrink: 0;
     }
     .signal-progress-label {
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 700;
       color: var(--muted2);
     }
     .signal-progress-pct {
-      font-size: 24px;
+      font-size: 20px;
       font-weight: 900;
     }
     .signal-progress-pct.ready { color: var(--green); }
@@ -348,35 +344,35 @@
       justify-content: center;
       height: 100%;
       color: var(--muted2);
-      font-size: 14px;
+      font-size: 13px;
       text-align: center;
       padding: 16px;
     }
-    .mobile-chart-placeholder span { font-size: 40px; margin-bottom: 8px; }
+    .mobile-chart-placeholder span { font-size: 36px; margin-bottom: 6px; }
 
     /* ===== COLUMNA DERECHA ===== */
     .metrics-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 4px;
-      margin-bottom: 8px;
+      gap: 3px;
+      margin-bottom: 6px;
       flex-shrink: 0;
     }
     .metric-card {
       background: var(--bg3);
       border: 1px solid var(--bd);
-      border-radius: 8px;
-      padding: 6px 4px;
+      border-radius: 6px;
+      padding: 4px 2px;
       text-align: center;
     }
     .metric-label {
-      font-size: 8px;
+      font-size: 7px;
       text-transform: uppercase;
       color: var(--muted2);
-      letter-spacing: 0.05em;
+      letter-spacing: 0.04em;
     }
     .metric-value {
-      font-size: 18px;
+      font-size: 16px;
       font-weight: 700;
       line-height: 1.2;
     }
@@ -388,35 +384,34 @@
       flex: 1;
       overflow-y: auto;
       min-height: 0;
-      font-size: 10px;
+      font-size: 9px;
     }
     .trades-wrap table { width: 100%; border-collapse: collapse; }
     .trades-wrap th {
       text-align: left;
-      font-size: 8px;
+      font-size: 7px;
       text-transform: uppercase;
       color: var(--muted2);
-      padding: 3px 3px;
+      padding: 2px 2px;
       border-bottom: 1px solid var(--bd);
     }
     .trades-wrap td {
-      padding: 3px 3px;
+      padding: 2px 2px;
       border-bottom: 1px solid rgba(30,37,48,0.3);
     }
     .pill {
       display: inline-block;
-      padding: 1px 6px;
-      border-radius: 10px;
-      font-size: 8px;
+      padding: 1px 5px;
+      border-radius: 8px;
+      font-size: 7px;
       font-weight: 700;
     }
     .pill-LONG, .pill-buy { background: rgba(0,230,118,0.15); color: var(--green); }
     .pill-SHORT, .pill-sell { background: rgba(255,61,87,0.15); color: var(--red); }
-
     .csv-btn {
-      font-size: 8px;
-      padding: 2px 8px;
-      border-radius: 10px;
+      font-size: 7px;
+      padding: 1px 6px;
+      border-radius: 8px;
       border: 1px solid var(--bd);
       background: transparent;
       color: var(--muted2);
@@ -430,69 +425,59 @@
       .col { max-height: none; }
       .col-center { min-height: 280px; }
       .signal-grid { grid-template-columns: 1fr 1fr; }
-      .h-price-val { font-size: 20px; }
-      .h-stat-val { font-size: 14px; }
-      .pos-side { font-size: 28px; }
-      .tv-wrap .desktop-only { display: none; }
-      .mobile-chart-placeholder { display: flex; }
     }
     @media (max-width: 600px) {
       .root { padding: 4px; gap: 3px; grid-template-rows: auto 1fr; }
-      .header { grid-template-columns: 1fr; padding: 4px 8px; gap: 4px; }
-      .logo { font-size: 16px; text-align: center; }
+      .header { grid-template-columns: 1fr; padding: 4px 8px; gap: 3px; }
+      .logo { font-size: 15px; text-align: center; }
       .h-center { gap: 6px; flex-wrap: wrap; justify-content: center; }
-      .h-price-val { font-size: 18px; }
-      .h-price-label { font-size: 9px; }
-      .h-stat { min-width: 35px; }
-      .h-stat-label { font-size: 7px; }
-      .h-stat-val { font-size: 12px; }
+      .h-price-val { font-size: 17px; }
+      .h-price-label { font-size: 8px; }
+      .h-stat { min-width: 30px; }
+      .h-stat-label { font-size: 6px; }
+      .h-stat-val { font-size: 11px; }
       .h-right { justify-content: center; }
-      .status-pill { font-size: 8px; padding: 2px 8px; }
+      .status-pill { font-size: 7px; padding: 2px 6px; }
       .h-update { font-size: 7px; }
       .body-grid { grid-template-columns: 1fr; grid-template-rows: auto 200px auto; gap: 3px; }
-      .col { padding: 8px; }
+      .col { padding: 6px; }
       .col-center { min-height: 200px; }
-      .pos-side { font-size: 24px; }
-      .pos-grid { grid-template-columns: 1fr 1fr; gap: 3px; }
-      .pos-item { padding: 3px 5px; }
-      .pos-item-val { font-size: 14px; }
-      .signal-grid { grid-template-columns: 1fr 1fr; gap: 4px; }
-      .signal-side { padding: 6px 8px; }
-      .cond-row { grid-template-columns: 1fr auto 20px; font-size: 10px; padding: 2px 0; min-height: 22px; }
-      .cond-label { font-size: 8px; }
-      .cond-value { font-size: 9px; }
-      .cond-check { font-size: 13px; width: 20px; }
-      .signal-side-title { font-size: 11px; }
-      .signal-progress-pct { font-size: 20px; }
-      .signal-status { font-size: 11px; padding: 1px 8px; }
-      .metrics-grid { grid-template-columns: 1fr 1fr; gap: 3px; }
-      .metric-card { padding: 4px; }
-      .metric-value { font-size: 16px; }
-      .metric-label { font-size: 7px; }
-      .trades-wrap { font-size: 8px; }
-      .trades-wrap th { font-size: 7px; padding: 2px 2px; }
-      .trades-wrap td { padding: 2px 2px; }
-      .pill { font-size: 7px; padding: 1px 4px; }
-      .mobile-chart-placeholder { font-size: 12px; }
-      .mobile-chart-placeholder span { font-size: 32px; }
+      .pos-side { font-size: 22px; }
+      .pos-grid { gap: 2px; }
+      .pos-item { padding: 2px 4px; }
+      .pos-item-val { font-size: 12px; }
+      .signal-grid { grid-template-columns: 1fr 1fr; gap: 3px; }
+      .signal-side { padding: 4px 5px; }
+      .cond-row { grid-template-columns: 1fr 24px 14px; font-size: 8px; padding: 1px 0; min-height: 16px; }
+      .cond-label { font-size: 7px; }
+      .cond-value { font-size: 7px; }
+      .cond-check { font-size: 10px; width: 14px; }
+      .signal-side-title { font-size: 9px; }
+      .signal-progress-pct { font-size: 17px; }
+      .signal-status { font-size: 9px; padding: 1px 6px; }
+      .metrics-grid { gap: 2px; }
+      .metric-card { padding: 3px; }
+      .metric-value { font-size: 14px; }
+      .metric-label { font-size: 6px; }
+      .trades-wrap { font-size: 7px; }
+      .trades-wrap th { font-size: 6px; padding: 1px 1px; }
+      .trades-wrap td { padding: 1px 1px; }
+      .pill { font-size: 6px; padding: 1px 3px; }
+      .mobile-chart-placeholder { font-size: 11px; }
+      .mobile-chart-placeholder span { font-size: 28px; }
     }
     @media (max-width: 400px) {
-      .h-center { gap: 4px; }
-      .h-price-val { font-size: 15px; }
-      .h-stat { min-width: 28px; }
-      .h-stat-val { font-size: 10px; }
-      .h-stat-label { font-size: 6px; }
-      .cond-row { grid-template-columns: 1fr auto 16px; font-size: 9px; }
-      .cond-label { font-size: 7px; }
-      .cond-value { font-size: 8px; }
-      .cond-check { font-size: 11px; width: 16px; }
-      .pos-item-val { font-size: 12px; }
       .body-grid { grid-template-rows: auto 160px auto; }
       .col-center { min-height: 160px; }
+      .cond-row { grid-template-columns: 1fr 18px 12px; font-size: 7px; }
+      .cond-label { font-size: 6px; }
+      .cond-value { font-size: 6px; }
+      .cond-check { font-size: 8px; width: 12px; }
+      .pos-item-val { font-size: 10px; }
     }
-    .trades-wrap::-webkit-scrollbar { width: 3px; }
+    .trades-wrap::-webkit-scrollbar { width: 2px; }
     .trades-wrap::-webkit-scrollbar-track { background: var(--bg); }
-    .trades-wrap::-webkit-scrollbar-thumb { background: var(--bd); border-radius: 3px; }
+    .trades-wrap::-webkit-scrollbar-thumb { background: var(--bd); border-radius: 2px; }
   </style>
 </head>
 <body>
@@ -519,9 +504,9 @@
   <!-- BODY -->
   <div class="body-grid">
 
-    <!-- COLUMNA IZQUIERDA - CON DISTRIBUCIÓN SIMÉTRICA -->
+    <!-- COLUMNA IZQUIERDA -->
     <div class="col left-col">
-      <!-- Bloque POSICIÓN (50% del espacio) -->
+      <!-- Posición -->
       <div class="pos-block">
         <div class="block-title">POSICIÓN</div>
         <div class="pos-side muted" id="pos-side">FLAT</div>
@@ -536,7 +521,7 @@
         <div class="cool-row" id="cool-row">Cooldown: —</div>
       </div>
 
-      <!-- Bloque SEÑAL (50% del espacio) - con fuentes más grandes -->
+      <!-- Señal - VERSIÓN DEFINITIVA -->
       <div class="signal-block">
         <div class="signal-header">
           <span>📡 SEÑAL EN VIVO</span>
@@ -546,18 +531,18 @@
           <!-- LONG -->
           <div class="signal-side long">
             <div class="signal-side-title">▲ LONG</div>
-            <div class="cond-row"><span class="cond-label">EMA10 > EMA35</span><span class="cond-value" id="val-long-trend">—</span><span class="cond-check" id="chk-long-trend">⬜</span></div>
-            <div class="cond-row"><span class="cond-label">MACD Line > 0</span><span class="cond-value" id="val-long-macdline">—</span><span class="cond-check" id="chk-long-macdline">⬜</span></div>
-            <div class="cond-row"><span class="cond-label">MACD Hist ↑</span><span class="cond-value" id="val-long-macdhist">—</span><span class="cond-check" id="chk-long-macdhist">⬜</span></div>
-            <div class="cond-row"><span class="cond-label">RSI &lt; 78</span><span class="cond-value" id="val-long-rsi">—</span><span class="cond-check" id="chk-long-rsi">⬜</span></div>
+            <div class="cond-row"><span class="cond-label">EMA10>EMA35</span><span class="cond-value" id="val-long-trend">—</span><span class="cond-check" id="chk-long-trend">⬜</span></div>
+            <div class="cond-row"><span class="cond-label">MACD Line>0</span><span class="cond-value" id="val-long-macdline">—</span><span class="cond-check" id="chk-long-macdline">⬜</span></div>
+            <div class="cond-row"><span class="cond-label">MACD Hist↑</span><span class="cond-value" id="val-long-macdhist">—</span><span class="cond-check" id="chk-long-macdhist">⬜</span></div>
+            <div class="cond-row"><span class="cond-label">RSI &lt;78</span><span class="cond-value" id="val-long-rsi">—</span><span class="cond-check" id="chk-long-rsi">⬜</span></div>
           </div>
           <!-- SHORT -->
           <div class="signal-side short">
             <div class="signal-side-title">▼ SHORT</div>
-            <div class="cond-row"><span class="cond-label">EMA10 &lt; EMA35</span><span class="cond-value" id="val-short-trend">—</span><span class="cond-check" id="chk-short-trend">⬜</span></div>
-            <div class="cond-row"><span class="cond-label">MACD Line &lt; 0</span><span class="cond-value" id="val-short-macdline">—</span><span class="cond-check" id="chk-short-macdline">⬜</span></div>
-            <div class="cond-row"><span class="cond-label">MACD Hist ↓</span><span class="cond-value" id="val-short-macdhist">—</span><span class="cond-check" id="chk-short-macdhist">⬜</span></div>
-            <div class="cond-row"><span class="cond-label">RSI &gt; 20</span><span class="cond-value" id="val-short-rsi">—</span><span class="cond-check" id="chk-short-rsi">⬜</span></div>
+            <div class="cond-row"><span class="cond-label">EMA10&lt;EMA35</span><span class="cond-value" id="val-short-trend">—</span><span class="cond-check" id="chk-short-trend">⬜</span></div>
+            <div class="cond-row"><span class="cond-label">MACD Line&lt;0</span><span class="cond-value" id="val-short-macdline">—</span><span class="cond-check" id="chk-short-macdline">⬜</span></div>
+            <div class="cond-row"><span class="cond-label">MACD Hist↓</span><span class="cond-value" id="val-short-macdhist">—</span><span class="cond-check" id="chk-short-macdhist">⬜</span></div>
+            <div class="cond-row"><span class="cond-label">RSI &gt;20</span><span class="cond-value" id="val-short-rsi">—</span><span class="cond-check" id="chk-short-rsi">⬜</span></div>
           </div>
         </div>
         <div class="signal-footer">
@@ -567,19 +552,19 @@
       </div>
     </div>
 
-    <!-- COLUMNA CENTRAL: CHART -->
+    <!-- CENTRO: CHART -->
     <div class="col col-center">
       <div class="tv-wrap">
         <div id="tv-chart-container" class="desktop-only"></div>
         <div class="mobile-chart-placeholder">
           <span>📱</span>
           <div>Gráfico disponible en versión de escritorio</div>
-          <div style="font-size:12px;color:var(--muted);margin-top:6px;">BTC/USD · 15m</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px;">BTC/USD · 15m</div>
         </div>
       </div>
     </div>
 
-    <!-- COLUMNA DERECHA -->
+    <!-- DERECHA -->
     <div class="col">
       <div class="block-title">RENDIMIENTO</div>
       <div class="metrics-grid">
@@ -590,8 +575,8 @@
         <div class="metric-card"><div class="metric-label">W / L</div><div class="metric-value" id="m-wl">—</div></div>
         <div class="metric-card"><div class="metric-label">GROSS PnL</div><div class="metric-value" id="m-pnl">—</div></div>
       </div>
-      <div style="flex:1;display:flex;flex-direction:column;min-height:0;margin-top:4px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;flex-shrink:0;">
+      <div style="flex:1;display:flex;flex-direction:column;min-height:0;margin-top:3px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;flex-shrink:0;">
           <span class="block-title" style="margin-bottom:0;">ÚLTIMAS OPERACIONES</span>
           <button class="csv-btn" onclick="downloadCSV()">↓ CSV</button>
         </div>
@@ -599,7 +584,7 @@
           <table>
             <thead><tr><th>LADO</th><th>ENTRADA</th><th>SALIDA</th><th>PnL</th><th>RES</th></tr></thead>
             <tbody id="trades-body">
-              <tr><td colspan="5" style="text-align:center;color:var(--muted2);padding:12px 0;">Sin operaciones</td></tr>
+              <tr><td colspan="5" style="text-align:center;color:var(--muted2);padding:10px 0;">Sin operaciones</td></tr>
             </tbody>
           </table>
         </div>
@@ -706,6 +691,7 @@ async function fetchAll() {
     const shortMacdHist = macdHist !== undefined && macdHist !== null && macdHist < 0;
     const shortRsi = rsi !== undefined && rsi > 20;
 
+    // Valores más limpios (sin decimales innecesarios)
     updateCondition('long-trend', longTrend, `${ema10?.toFixed(0)||'—'}`);
     updateCondition('long-macdline', longMacdLine, `${macdLine?.toFixed(1)||'—'}`);
     updateCondition('long-macdhist', longMacdHist, `${macdHist?.toFixed(1)||'—'}`);
@@ -748,7 +734,7 @@ async function fetchAll() {
     // TRADES
     const tbody = document.getElementById('trades-body');
     if (!allTrades || allTrades.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--muted2);padding:12px 0;">Sin operaciones</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--muted2);padding:10px 0;">Sin operaciones</td></tr>`;
     } else {
       tbody.innerHTML = [...allTrades].reverse().slice(0,15).map(t => {
         const pnl = t.pnl_pct_neto || t.pnl_pct_bruto || 0;
@@ -757,7 +743,7 @@ async function fetchAll() {
           <td>$${(t.entry_price||0).toLocaleString()}</td>
           <td>$${(t.exit_price||0).toLocaleString()}</td>
           <td class="${pnl>=0?'green':'red'}">${pnl>=0?'+':''}${pnl.toFixed(1)}%</td>
-          <td><span style="font-size:8px;color:var(--muted2)">${t.reason?.substring(0,10)||'—'}</span></td>
+          <td><span style="font-size:7px;color:var(--muted2)">${t.reason?.substring(0,10)||'—'}</span></td>
         </tr>`;
       }).join('');
     }
