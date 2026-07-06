@@ -789,7 +789,7 @@
                 allTrades = await trR.json();
                 if (!Array.isArray(allTrades)) allTrades = [];
 
-                const cap = state.capital || 1000;
+                const cap = state.capital || 473;
                 const initialCap = state.initial_capital || 1000;
                 const hasTrades = allTrades.length > 0;
                 const ret = hasTrades ? ((cap - initialCap) / initialCap * 100) : 0;
