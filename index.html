@@ -481,14 +481,27 @@
                 min-height: 200px;
             }
         }
+
         @media (max-width: 700px) {
+            /* Ocultar el gráfico en móvil */
+            .col-center {
+                display: none !important;
+            }
             .body-grid {
                 grid-template-columns: 1fr;
                 grid-template-rows: auto auto 1fr;
+                gap: 5px;
             }
-            .col-center {
-                grid-column: span 1;
-                min-height: 180px;
+            .col {
+                max-height: none;
+                min-height: 0;
+            }
+            /* Las dos columnas visibles ocupan todo el ancho */
+            .col:first-child {
+                grid-row: 1;
+            }
+            .col:last-child {
+                grid-row: 2;
             }
             .header {
                 grid-template-columns: 1fr;
@@ -501,6 +514,7 @@
             }
             .h-center {
                 gap: 10px;
+                flex-wrap: wrap;
             }
             .h-price-val {
                 font-size: 24px;
@@ -542,7 +556,95 @@
             .metric-value {
                 font-size: 18px;
             }
+            /* Reducir padding en móvil para que quepa más información */
+            .col {
+                padding: 10px;
+            }
+            /* Asegurar que la columna de trades no se desborde */
+            .trades-wrap {
+                font-size: 11px;
+            }
+            .trades-wrap th {
+                font-size: 8px;
+                padding: 2px 3px;
+            }
+            .trades-wrap td {
+                padding: 2px 3px;
+            }
+            .pill {
+                font-size: 9px;
+                padding: 1px 8px;
+            }
+            .csv-btn {
+                font-size: 8px;
+                padding: 1px 8px;
+            }
         }
+
+        @media (max-width: 400px) {
+            .h-center {
+                gap: 6px;
+            }
+            .h-price-val {
+                font-size: 18px;
+            }
+            .h-stat-val {
+                font-size: 13px;
+            }
+            .h-stat-label {
+                font-size: 8px;
+            }
+            .h-price-label {
+                font-size: 10px;
+            }
+            .pos-side {
+                font-size: 22px;
+            }
+            .pos-item-val {
+                font-size: 14px;
+            }
+            .pos-item-label {
+                font-size: 8px;
+            }
+            .cond-row {
+                grid-template-columns: 1fr 24px 16px;
+                font-size: 10px;
+                min-height: 20px;
+            }
+            .cond-label {
+                font-size: 8px;
+            }
+            .cond-value {
+                font-size: 9px;
+            }
+            .cond-check {
+                font-size: 13px;
+                width: 16px;
+            }
+            .signal-side-title {
+                font-size: 11px;
+            }
+            .signal-progress-pct {
+                font-size: 20px;
+            }
+            .signal-status {
+                font-size: 11px;
+                padding: 1px 8px;
+            }
+            .metric-value {
+                font-size: 15px;
+            }
+            .metric-label {
+                font-size: 8px;
+            }
+            .metric-card {
+                padding: 4px 2px;
+            }
+            .block-title {
+                font-size: 10px;
+            }
+        }
+
         .trades-wrap::-webkit-scrollbar {
             width: 3px;
         }
@@ -624,7 +726,7 @@
                 </div>
             </div>
 
-            <!-- COLUMNA CENTRAL: GRÁFICO (más pequeño) -->
+            <!-- COLUMNA CENTRAL: GRÁFICO (oculto en móvil) -->
             <div class="col col-center">
                 <div class="tv-wrap">
                     <div id="tv-chart-container"></div>
