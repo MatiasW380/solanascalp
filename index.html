@@ -150,7 +150,7 @@
             }
         }
 
-        /* ===== CUERPO - TRES COLUMNAS SIMÉTRICAS ===== */
+        /* ===== CUERPO - TRES COLUMNAS ===== */
         .body-grid {
             display: grid;
             grid-template-columns: 1fr 1.2fr 1fr;
@@ -180,7 +180,6 @@
         }
 
         /* ===== COLUMNA IZQUIERDA ===== */
-        /* Posición */
         .pos-side {
             font-family: var(--cond);
             font-size: 40px;
@@ -211,6 +210,9 @@
             text-transform: uppercase;
             letter-spacing: 0.06em;
         }
+        .pos-item-label.yellow {
+            color: var(--yellow);
+        }
         .pos-item-val {
             font-size: 22px;
             font-weight: 700;
@@ -222,6 +224,9 @@
         .pos-item-val.red {
             color: var(--red);
         }
+        .pos-item-val.yellow {
+            color: var(--yellow);
+        }
         .pos-item-val.muted {
             color: var(--muted2);
         }
@@ -232,7 +237,7 @@
             font-weight: 700;
         }
 
-        /* ===== SEÑAL EN VIVO - FUENTES GRANDES ===== */
+        /* ===== SEÑAL EN VIVO ===== */
         .signal-block {
             flex: 1;
             display: flex;
@@ -304,7 +309,6 @@
             color: var(--red);
         }
 
-        /* Cada condición - FUENTES GRANDES y sin cortes */
         .cond-row {
             display: grid;
             grid-template-columns: 1fr 50px 28px;
@@ -371,7 +375,7 @@
             color: var(--red);
         }
 
-        /* ===== COLUMNA CENTRAL - GRÁFICO PEQUEÑO ===== */
+        /* ===== COLUMNA CENTRAL - GRÁFICO ===== */
         .tv-wrap {
             flex: 1;
             height: 100%;
@@ -456,6 +460,14 @@
             background: rgba(255, 61, 87, 0.15);
             color: var(--red);
         }
+        .pill-WIN {
+            background: rgba(0, 230, 118, 0.15);
+            color: var(--green);
+        }
+        .pill-LOSS {
+            background: rgba(255, 61, 87, 0.15);
+            color: var(--red);
+        }
         .csv-btn {
             font-size: 10px;
             padding: 2px 12px;
@@ -483,7 +495,6 @@
         }
 
         @media (max-width: 700px) {
-            /* Ocultar el gráfico en móvil */
             .col-center {
                 display: none !important;
             }
@@ -496,7 +507,6 @@
                 max-height: none;
                 min-height: 0;
             }
-            /* Las dos columnas visibles ocupan todo el ancho */
             .col:first-child {
                 grid-row: 1;
             }
@@ -556,11 +566,9 @@
             .metric-value {
                 font-size: 18px;
             }
-            /* Reducir padding en móvil para que quepa más información */
             .col {
                 padding: 10px;
             }
-            /* Asegurar que la columna de trades no se desborde */
             .trades-wrap {
                 font-size: 11px;
             }
@@ -690,7 +698,11 @@
                         <div class="pos-item"><div class="pos-item-label">ENTRADA</div><div class="pos-item-val muted" id="pos-entry">—</div></div>
                         <div class="pos-item"><div class="pos-item-label">PnL</div><div class="pos-item-val" id="pos-pnl">—</div></div>
                         <div class="pos-item"><div class="pos-item-label green">TP 5.80%</div><div class="pos-item-val green" id="pos-tp">—</div></div>
-                        <div class="pos-item"><div class="pos-item-label red">SL 2.60%</div><div class="pos-item-val red" id="pos-sl">—</div></div>
+                        <!-- SL: cambiará a TRAILING SL si está activo -->
+                        <div class="pos-item">
+                            <div class="pos-item-label red" id="pos-sl-label">SL 2.60%</div>
+                            <div class="pos-item-val red" id="pos-sl">—</div>
+                        </div>
                         <div class="pos-item"><div class="pos-item-label">DURACIÓN</div><div class="pos-item-val muted" id="pos-dur">—</div></div>
                         <div class="pos-item"><div class="pos-item-label">TRAILING</div><div class="pos-item-val" id="pos-trailing" style="color:var(--muted2);">INACTIVO</div></div>
                     </div>
@@ -754,9 +766,9 @@
                     </div>
                     <div class="trades-wrap">
                         <table>
-                            <thead><tr><th>LADO</th><th>ENTRADA</th><th>SALIDA</th><th>PnL</th></tr></thead>
+                            <thead><tr><th>LADO</th><th>PnL</th><th>RES</th></tr></thead>
                             <tbody id="trades-body">
-                                <tr><td colspan="4" style="text-align:center;color:var(--muted2);padding:16px 0;">Sin operaciones</td></tr>
+                                <tr><td colspan="3" style="text-align:center;color:var(--muted2);padding:16px 0;">Sin operaciones</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -807,6 +819,7 @@
                 const position = state.position;
                 const entryPrice = state.entry_price || 0;
                 const trailingActive = state.trailing_active || false;
+                const dynamicSlPrice = state.dynamic_sl_price;
                 const coolUntil = state.cooldown_until || 0;
                 const remainingSec = coolUntil - Date.now() / 1000;
                 const inCooldown = remainingSec > 0;
@@ -831,7 +844,7 @@
                     const entry = entryPrice;
                     const lev = 10,
                         tpPct = 5.80,
-                        slPct = 2.60;
+                        slPct = 2.50;
                     let tp, sl;
                     if (side === 'LONG') { tp = entry * (1 + tpPct / 100);
                         sl = entry * (1 - slPct / 100); } else { tp = entry * (1 - tpPct / 100);
@@ -845,7 +858,22 @@
                     document.getElementById('pos-pnl').textContent = `${profitPct>=0?'+':''}${profitPct.toFixed(1)}%`;
                     document.getElementById('pos-pnl').className = `pos-item-val ${profitPct>=0?'green':'red'}`;
                     document.getElementById('pos-tp').textContent = `$${tp.toLocaleString()}`;
-                    document.getElementById('pos-sl').textContent = `$${sl.toLocaleString()}`;
+
+                    // ===== MOSTRAR SL DINÁMICO O FIJO =====
+                    const slLabel = document.getElementById('pos-sl-label');
+                    const slElement = document.getElementById('pos-sl');
+                    if (trailingActive && dynamicSlPrice) {
+                        slLabel.textContent = 'TRAILING SL';
+                        slLabel.className = 'pos-item-label yellow';
+                        slElement.textContent = `$${dynamicSlPrice.toLocaleString()}`;
+                        slElement.className = 'pos-item-val yellow';
+                    } else {
+                        slLabel.textContent = `SL ${slPct}%`;
+                        slLabel.className = 'pos-item-label red';
+                        slElement.textContent = `$${sl.toLocaleString()}`;
+                        slElement.className = 'pos-item-val red';
+                    }
+
                     document.getElementById('pos-dur').textContent = `${dur}m`;
                     document.getElementById('pos-trailing').textContent = trailingActive ? '🔹 ACTIVO' : 'INACTIVO';
                     document.getElementById('pos-trailing').style.color = trailingActive ? 'var(--yellow)' :
@@ -853,10 +881,13 @@
                 } else {
                     posSide.textContent = 'FLAT';
                     posSide.className = 'pos-side muted';
-                    ['pos-entry', 'pos-tp', 'pos-sl', 'pos-dur'].forEach(id => document.getElementById(id).textContent =
-                        '—');
+                    ['pos-entry', 'pos-tp', 'pos-dur'].forEach(id => document.getElementById(id).textContent = '—');
                     document.getElementById('pos-pnl').textContent = '—';
                     document.getElementById('pos-pnl').className = 'pos-item-val muted';
+                    document.getElementById('pos-sl').textContent = '—';
+                    document.getElementById('pos-sl').className = 'pos-item-val red';
+                    document.getElementById('pos-sl-label').textContent = 'SL 2.50%';
+                    document.getElementById('pos-sl-label').className = 'pos-item-label red';
                     document.getElementById('pos-trailing').textContent = 'INACTIVO';
                     document.getElementById('pos-trailing').style.color = 'var(--muted2)';
                 }
@@ -916,19 +947,19 @@
                     `${(state.gross_pnl||0)>=0?'+':''}$${Math.abs(state.gross_pnl||0).toFixed(0)}`;
                 document.getElementById('m-pnl').className = `metric-value ${(state.gross_pnl||0)>=0?'green':'red'}`;
 
-                // TRADES
+                // ===== TRADES - SOLO LADO, PnL y RESULTADO =====
                 const tbody = document.getElementById('trades-body');
                 if (!allTrades || allTrades.length === 0) {
                     tbody.innerHTML =
-                        `<tr><td colspan="4" style="text-align:center;color:var(--muted2);padding:16px 0;">Sin operaciones</td></tr>`;
+                        `<tr><td colspan="3" style="text-align:center;color:var(--muted2);padding:16px 0;">Sin operaciones</td></tr>`;
                 } else {
                     tbody.innerHTML = [...allTrades].reverse().slice(0, 15).map(t => {
                         const pnl = t.pnl_pct_neto || t.pnl_pct_bruto || 0;
+                        const isWin = pnl >= 0;
                         return `<tr>
                             <td><span class="pill pill-${t.side}">${t.side}</span></td>
-                            <td>$${(t.entry_price||0).toLocaleString()}</td>
-                            <td>$${(t.exit_price||0).toLocaleString()}</td>
-                            <td class="${pnl>=0?'green':'red'}">${pnl>=0?'+':''}${pnl.toFixed(1)}%</td>
+                            <td class="${isWin ? 'green' : 'red'}">${isWin ? '+' : ''}${pnl.toFixed(1)}%</td>
+                            <td><span class="pill ${isWin ? 'pill-WIN' : 'pill-LOSS'}">${isWin ? '✅ WIN' : '❌ LOSS'}</span></td>
                         </tr>`;
                     }).join('');
                 }
